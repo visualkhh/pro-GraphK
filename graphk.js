@@ -175,6 +175,9 @@ GraphK.prototype.rendering = function(){
 					context.moveTo(xSet, ySet);
 				}else{
 					context.lineTo(xSet, ySet);
+					context.textAlign		="center";
+					context.textBaseline 	= "bottom";
+					context.fillText(xData+","+yData, xSet, ySet);
 				}
 				//console.log(yData+", "+xData+"     "+xWantP+",  "+yWantP);
 			}

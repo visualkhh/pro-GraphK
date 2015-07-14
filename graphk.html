@@ -7,14 +7,14 @@
 <script type="text/javascript" src="./graphk_object.js"></script>
 <script type="text/javascript" src="./graphk.js"></script>
 
-
-
 <script type="text/javascript">
 	document.addEventListener("DOMContentLoaded", function() {
 		var graph1 = new GraphK("#can1");
 		graph1.setMargin(20,10,10,10); //t, r, b, l
 		graph1.setPadding(20,20,40,40);
 		graph1.addData(getTempData("data1"));
+		graph1.addData(getTempData("data2"));
+		graph1.addData(getTempData("data2"));
 		graph1.addData(getTempData("data2"));
 		graph1.addData(getTempData("data3"));
 		graph1.rendering();
@@ -23,7 +23,7 @@
 
 	function getTempData(name){
 		var data = new Array();
-		for(var y = 8 ; y < 100; y++){
+		for(var y = 8 ; y < 15; y++){
 			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
 		}
 		var graphKData = new GraphDataK(name,data);
