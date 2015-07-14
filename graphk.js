@@ -169,7 +169,7 @@ GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
 	}
 	this.context.stroke(); 
 } 
-GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK
+GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK 
 	this.context.strokeStyle 	= graphKData.strokeStyle;
 	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
 	this.context.beginPath(); 
