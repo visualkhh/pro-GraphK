@@ -125,6 +125,8 @@ GraphK.prototype.drawChartData = function(){
 		//draw...
 		if(atGraphKData.type=="line"){
 			this.drawChartLineData(atGraphKData);
+		}else if(atGraphKData.type=="dot"){
+			this.drawChartDotData(atGraphKData);
 		}else if(atGraphKData.type=="stick"){
 			this.drawChartStickData(atGraphKData);
 		}else{
@@ -146,6 +148,23 @@ GraphK.prototype.drawChartLineData = function(graphKData){//GraphDataK
 		}else{
 			this.context.lineTo(atPoint.x, atPoint.y);
 		}
+		this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+	}
+	this.context.stroke(); 
+}
+GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.beginPath(); 
+	
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		var atPoint = pointArray[i];
+		var widthH  = (graphKData.width/2);
+		
+		var startX 	= atPoint.x - widthH;
+		var startY 	= atPoint.y;
+		this.context.fillRect(startX, startY, graphKData.width,  graphKData.width );
 		this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
 	}
 	this.context.stroke(); 

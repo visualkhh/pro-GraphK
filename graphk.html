@@ -15,32 +15,48 @@
 		graph1.setPadding(20,20,40,40);
 		graph1.addData(getTempStickData("data0"));
 		graph1.addData(getTempLineData("data1"));
-		graph1.addData(getTempLineData("data2"));
-		graph1.addData(getTempLineData("data3"));
-		graph1.addData(getTempLineData("data4"));
+		graph1.addData(getTempDotData("data2"));
+// 		graph1.addData(getTempLineData("data2"));
+// 		graph1.addData(getTempLineData("data3"));
+// 		graph1.addData(getTempLineData("data4"));
 		graph1.rendering();
 		graph1.onMouseTraking();
 	},false);
 	
-
+var x=20;
+	function getTempDotData(name){
+		var data = new Array();
+		for(var y = 5 ; y < x; y++){
+			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
+		}
+		var graphKData = new GraphDataK(name,data);
+		graphKData.setType("dot");
+		graphKData.setWidth(5);
+		graphKData.setFillStyle(getRandomColor());
+		graphKData.setStrokeStyle(getRandomColor());
+		graphKData.setFillStyle(getRandomColor());
+		return graphKData;
+	} 
 	function getTempLineData(name){
 		var data = new Array();
-		for(var y = 5 ; y < 10; y++){
+		for(var y = 5 ; y < x; y++){
 			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
 		}
 		var graphKData = new GraphDataK(name,data);
 		graphKData.setType("line");
+		graphKData.setWidth(10);
 		graphKData.setStrokeStyle(getRandomColor());
 		return graphKData;
 	} 
 	function getTempStickData(name){
 		var data = new Array();
-		for(var y = 5 ; y < 10; y++){
+		for(var y = 5 ; y < x; y++){
 			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
 		}
 		var graphKData = new GraphDataK(name,data);
 		graphKData.setType("stick");
 		graphKData.setWidth(50);
+		graphKData.setFillStyle(getRandomColor());
 		graphKData.setStrokeStyle(getRandomColor());
 		graphKData.setFillStyle(getRandomColor());
 		return graphKData;
