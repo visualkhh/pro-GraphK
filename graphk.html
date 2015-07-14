@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <title>Insert title here</title>
 
+<script type="text/javascript" src="./graphk_util.js"></script>
 <script type="text/javascript" src="./graphk_object.js"></script>
 <script type="text/javascript" src="./graphk.js"></script>
 
@@ -12,23 +13,36 @@
 		var graph1 = new GraphK("#can1");
 		graph1.setMargin(20,10,10,10); //t, r, b, l
 		graph1.setPadding(20,20,40,40);
-		graph1.addData(getTempData("data1"));
-		graph1.addData(getTempData("data2"));
-		graph1.addData(getTempData("data2"));
-		graph1.addData(getTempData("data2"));
-		graph1.addData(getTempData("data3"));
+		graph1.addData(getTempStickData("data0"));
+		graph1.addData(getTempLineData("data1"));
+		graph1.addData(getTempLineData("data2"));
+		graph1.addData(getTempLineData("data3"));
+		graph1.addData(getTempLineData("data4"));
 		graph1.rendering();
+		graph1.onMouseTraking();
 	},false);
 	
 
-	function getTempData(name){
+	function getTempLineData(name){
 		var data = new Array();
-		for(var y = 8 ; y < 15; y++){
+		for(var y = 5 ; y < 10; y++){
 			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
 		}
 		var graphKData = new GraphDataK(name,data);
 		graphKData.setType("line");
 		graphKData.setStrokeStyle(getRandomColor());
+		return graphKData;
+	} 
+	function getTempStickData(name){
+		var data = new Array();
+		for(var y = 5 ; y < 10; y++){
+			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
+		}
+		var graphKData = new GraphDataK(name,data);
+		graphKData.setType("stick");
+		graphKData.setWidth(50);
+		graphKData.setStrokeStyle(getRandomColor());
+		graphKData.setFillStyle(getRandomColor());
 		return graphKData;
 	} 
 	function getRandomColor(){
