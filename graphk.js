@@ -19,8 +19,6 @@ GraphK.prototype.chartAxisXCount 		= 15;
 GraphK.prototype.chartAxisXGuideSize	= 3; //수치눈꿈 사이즈
 GraphK.prototype.chartAxisYCount 		= 15;
 GraphK.prototype.chartAxisYGuideSize 	= 3;
-//GraphK.prototype.chartAxisXDataName 	= "x"; //GraphKData에 Data로들어갈 변수명
-//GraphK.prototype.chartAxisYDataName 	= "y";
 GraphK.prototype.chartAxisXMinVisible 	= true;
 GraphK.prototype.chartAxisYMinVisible 	= true;
 GraphK.prototype.chartAxisXMaxVisible 	= false;
@@ -104,7 +102,7 @@ GraphK.prototype.rendering = function(){
 	
 	
 	
-	/////////chart  cossGride
+	/////////chart  draw
     this.drawChartCosssGrid();
     this.drawChartData();
     this.drawChartAxisGuide();
@@ -260,14 +258,14 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	this.context.textAlign		= "left";
 	this.context.textBaseline	= "top";
 	if(this.chartAxisXMinVisible)
-		this.context.fillText(xMin, this.chartRect.getStartX()+this.lChartPadding, this.chartRect.getEndY());
+		this.context.fillText(xMin, this.chartDataRect.getStartX(), this.chartRect.getEndY());
 	if(this.chartAxisXMaxVisible)
 		this.context.fillText(xMax, this.chartRect.getEndX(), this.chartRect.getEndY());
 	
 	this.context.beginPath();
 	this.context.strokeStyle = this.chartStrokeStyle;
 	for ( var i = 1; this.chartAxisXVisible && i <= this.chartAxisXCount; i++) {
-		var setX = this.chartRect.getStartX()+(xGP*i)+this.lChartPadding;
+		var setX = this.chartDataRect.getStartX()+(xGP*i);
 		var setY = this.chartRect.getEndY();
 		this.context.fillText((xMin+(xP*i)).toFixed(1), setX, setY);  //chart padding값..추가
 		//눈꿈그리기
@@ -278,12 +276,12 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	this.context.textAlign		= "end";
 	this.context.textBaseline	= "bottom";
 	if(this.chartAxisYMinVisible)
-		this.context.fillText(yMin, this.chartRect.getStartX(), this.chartRect.getEndY() - this.bChartPadding);
+		this.context.fillText(yMin, this.chartRect.getStartX(), this.chartDataRect.getEndY());
 	if(this.chartAxisYMaxVisible)
 		this.context.fillText(yMax, this.chartRect.getStartX(), this.chartRect.getStartY());
 	for ( var i = 1; this.chartAxisYVisible && i <= this.chartAxisYCount; i++) {
 		var setX = this.chartRect.getStartX();
-		var setY = this.chartRect.getEndY()-(yGP*i) - this.bChartPadding;
+		var setY = this.chartDataRect.getEndY()-(yGP*i);
 		this.context.fillText((yMin+(yP*i)).toFixed(1),setX , setY);  //chart padding값..추가
 		//눈꿈그리기
 		this.context.moveTo(setX, setY); 
