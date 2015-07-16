@@ -13,16 +13,17 @@
 		var graph1 = new GraphK("#can1");
 		graph1.setMargin(20,10,10,10); //t, r, b, l 
 		graph1.setPadding(20,20,40,40);
-// 		graph1.addData(getTempStickData("data0"));
-		graph1.addData(getTempLineData("data1"));
+		graph1.addData(getTempStickData("data0"));
+// 		graph1.addData(getTempLineData("data1"));
 // 		graph1.addData(getTempDotData("data2"));
+		graph1.addData(getTempDotData("data2"));
 // 		graph1.addData(getTempDotData("data2"));
-// 		graph1.addData(getTempDotData("data2"));
-// 		graph1.addData(getTempLineData("data2"));
+		graph1.addData(getTempLineData("data2"));
 // 		graph1.addData(getTempLineData("data3"));
 // 		graph1.addData(getTempLineData("data4"));
 		graph1.rendering();
-		graph1.onMouseTraking();
+// 		graph1.onMouseTraking();
+		graph1.onDrag();
 	},false);
 	
 var x=20;

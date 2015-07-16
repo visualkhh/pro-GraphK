@@ -122,6 +122,9 @@ RectK.prototype.getCentX = function(){
 RectK.prototype.getCentY = function(){
 	return ((this.getEndY() - this.getStartY()) / 2) + this.getEndY();
 }
+RectK.prototype.isHit = function(x, y){
+	return this.getStartX()<=x && this.getStartY()<=y && this.getEndX()>=x && this.getEndY()>=y;
+}
 
 
 
@@ -213,5 +216,44 @@ GraphDataKSet.prototype.getData = function(name){//[GraphKData,...]
 	}
 	return getData;
 }
-
+//min과 max의 사이의 길이.
+GraphDataKSet.prototype.getDataXBetweenLength = function(name){//[GraphKData,...]
+	return this.getDataXMax(name) - this.getDataXMin(name)
+}
+//min과 max의 사이의 길이.
+GraphDataKSet.prototype.getDataYBetweenLength = function(name){//[GraphKData,...]
+	return this.getDataYMax(name) - this.getDataYMin(name)
+}
+//PointK (data) ,PointK(data)
+GraphDataKSet.prototype.getBetweenData = function(startData, endData, name){//[GraphKData,...]
+	var newGraphDataKSet = new GraphDataKSet();  	//data
+	var graphDataKSet = this.getData(name); 		// [GraphDataK,...]
+	for ( var i = 0; i < graphDataKSet.length; i++) {
+		var atGraphDataK	= graphDataKSet[i];		//GraphDataK
+		var dataArray		= atGraphDataK.data; 	//[{x:1,y:1},...]
+		var newDataArray	= new Array();
+		for ( var y = 0; y < dataArray.length; y++) {
+			var atData 		= dataArray[y];	//Object   ex: {x:1,y:1} 
+			var startX 	= Math.min(startData.x, endData.x);
+			var endX 	= Math.max(startData.x, endData.x);
+			var startY 	= Math.min(startData.y, endData.y);
+			var endY 	= Math.max(startData.y, endData.y);
+			
+			if(startX <= Number(atData[atGraphDataK.xVarName]) && startY <= Number(atData[atGraphDataK.yVarName]) &&
+				endX >= Number(atData[atGraphDataK.xVarName]) && endY >= Number(atData[atGraphDataK.yVarName])){
+				newDataArray.push(atData);
+			}
+		}
+		
+		if(newDataArray.length>0){ //나중에 복사하는거 손좀봐야됨 
+			var newGraphDataK = new GraphDataK();
+		    for (var property in atGraphDataK) {	//copy
+		    	newGraphDataK[property] = atGraphDataK[property]; 
+		    }
+		    newGraphDataK.data = newDataArray;
+		    newGraphDataKSet.push(newGraphDataK);
+		}
+	}
+	return newGraphDataKSet;
+}
 
