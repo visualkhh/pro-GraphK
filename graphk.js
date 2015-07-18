@@ -21,12 +21,12 @@ GraphK.prototype.chartAxisXCount 		= 15;
 GraphK.prototype.chartAxisXGuideSize	= 5; //수치눈꿈 사이즈
 GraphK.prototype.chartAxisYCount 		= 15;
 GraphK.prototype.chartAxisYGuideSize 	= 5;
-GraphK.prototype.chartAxisXMinVisible 	= true;
-GraphK.prototype.chartAxisYMinVisible 	= true;
-GraphK.prototype.chartAxisXMaxVisible 	= false;
-GraphK.prototype.chartAxisYMaxVisible 	= false;
 GraphK.prototype.chartAxisXVisible 		= true;
 GraphK.prototype.chartAxisYVisible 		= true;
+GraphK.prototype.chartAxisXDataMinMarginPercent 	= 5;	
+GraphK.prototype.chartAxisXDataMaxMarginPercent 	= 20;	
+GraphK.prototype.chartAxisYDataMinMarginPercent 	= 5;	
+GraphK.prototype.chartAxisYDataMaxMarginPercent 	= 20;	
 GraphK.prototype.chartCrossStrokeStyle 	= "#EEEEEE";
 
 
@@ -50,6 +50,7 @@ GraphK.prototype.tChartPadding 	= 30;
 GraphK.prototype.rChartPadding 	= 30;
 GraphK.prototype.bChartPadding 	= 30;
 GraphK.prototype.lChartPadding 	= 30;
+
 
 GraphK.prototype.data;//	= new GraphDataKSet();  //extends Array     [GraphDataK,...]  데이타..
 	
@@ -180,7 +181,7 @@ GraphK.prototype.rendering = function(){
 	this.chartRect.strokeRect(this.context, this.chartStrokeStyle);
 	
 	this.chartDataRect = this.chartRect.getPadding(this.tChartPadding, this.rChartPadding, this.bChartPadding, this.lChartPadding);
-//	this.chartDataRect.strokeRect(this.context, this.chartStrokeStyle);
+	this.chartDataRect.strokeRect(this.context, this.chartStrokeStyle);
 	//console.log("---"+this.chartRect.width+"  "+this.chartDataRect.width);
 	//title draw
     var metrix = this.context.measureText(this.contentTitle);
@@ -195,7 +196,7 @@ GraphK.prototype.rendering = function(){
 	/////////chart  draw
     this.drawChartCosssGrid();
     this.drawChartData(this.data);
-    this.drawChartAxisGuide();
+    this.drawChartAxisGuide(this.data);
 	//-----
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
 	
@@ -205,15 +206,14 @@ GraphK.prototype.rendering = function(){
 };
 
 
-GraphK.prototype.drawChartData = function(data){
-
+GraphK.prototype.drawChartData = function(graphDataKSet){
 	this.context.textAlign		="center";
 	//this.context.textBaseline 	= "middle";
 	this.context.textBaseline 	= "buttom";
 	
 	//chart grid Data
-	for ( var i = 0; i < data.length; i++) {//GraphDataKSet :  [GraphDataK,.....]
-		var atGraphKData = this.data[i]; // GraphKData
+	for ( var i = 0; i < graphDataKSet.length; i++) {//GraphDataKSet :  [GraphDataK,.....]
+		var atGraphKData = graphDataKSet[i]; // GraphKData
 
 		//draw...
 		if(atGraphKData.type=="line"){
@@ -279,16 +279,17 @@ GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK
 	}
 	this.context.stroke(); 
 }
+
 GraphK.prototype.getDrawChartPoints = function(graphKData){
 	var dataArray = graphKData.data;  //[Object,....]
 	var pointArray = new Array();
 	for ( var i = 0; i < dataArray.length; i++) {
-		var atData 					= dataArray[i];	//Object   ex: {x:1,y:1}
-		var point = this.getDrawChartPoint(new PointK(atData[graphKData.xVarName], atData[graphKData.yVarName]),
+		var atData 	= dataArray[i];	//Object   ex: {x:1,y:1}
+		var point 	= this.getDrawChartPoint(new PointK(atData[graphKData.xVarName], atData[graphKData.yVarName]),
 				this.data.getDataXMin(), this.data.getDataXMax(),
 				this.data.getDataYMin(), this.data.getDataYMax()
 				);
-		point.value=atData[graphKData.xVarName]+","+atData[graphKData.yVarName];
+		point.value=atData[graphKData.yVarName]+", "+atData[graphKData.xVarName];
 		pointArray.push(point);
 	}
 	return pointArray;
@@ -297,10 +298,26 @@ GraphK.prototype.getDrawChartPoints = function(graphKData){
 //PointK, GraphDataKSet
 //차트데이터 데이터값을주면  상대좌표를 픽셀을 돌려준다.
 GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
-	var yAtData_BetweenLength 	= GraphKUtil.getBetweenLength(yMin, point.y); //ex) 10(원하는거) - 7(민) = 3(차)
+	
 	var yData_BetweenLength 	= GraphKUtil.getBetweenLength(yMin, yMax); 
+	var xData_BetweenLength		= GraphKUtil.getBetweenLength(xMin, xMax);
+	
+	var yMinMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMinMarginPercent);
+	var yMaxMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMaxMarginPercent);
+	var xMinMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMinMarginPercent);
+	var xMaxMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMaxMarginPercent);
+//	console.log(yData_BetweenLength+" "+yMinMargin+" "+yMaxMargin+" "+"  // "+xData_BetweenLength+"   "+xMinMargin+" "+xMaxMargin);
+//	//datamargin
+//	yMin -= yMinMargin;
+//	yMax += yMaxMargin;
+//	xMin -= xMinMargin;
+//	xMax += xMaxMargin;
+//	yData_BetweenLength 	= GraphKUtil.getBetweenLength(yMin, yMax);  
+//	xData_BetweenLength		= GraphKUtil.getBetweenLength(xMin, xMax);  
+	//
+	
+	var yAtData_BetweenLength 	= GraphKUtil.getBetweenLength(yMin, point.y); //ex) 10(원하는거) - 7(민) = 3(차)
 	var xAtData_BetweenLength	= GraphKUtil.getBetweenLength(xMin, point.x);			
-	var xData_BetweenLength		= GraphKUtil.getBetweenLength(xMin, xMax);			
 	
 	var yDataPercent			= GraphKUtil.getPercentByTot(yData_BetweenLength, yAtData_BetweenLength); // 전체차에서  원하는값의차는 몇%인가
 	var xDataPercent			= GraphKUtil.getPercentByTot(xData_BetweenLength, xAtData_BetweenLength);	
@@ -308,42 +325,49 @@ GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
 	var yPoint					= GraphKUtil.getValueByTotInPercent(this.chartDataRect.height, yDataPercent);//전체값의 몇 퍼센트는 얼마? 계산법 공식 ;  전체값 X 퍼센트 ÷ 100
 	var xPoint					= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width,  xDataPercent);
 //	console.log(this.chartDataRect.height+"    "+yDataPercent+"  "+yPoint+"  //  "+this.chartDataRect.width+"    "+xDataPercent+"  "+xPoint);
-	var ySet					= this.chartDataRect.getEndY() - yPoint;
+	var ySet					= this.chartDataRect.getEndY()   - yPoint;
 	var xSet					= this.chartDataRect.getStartX() + xPoint;
 	return new PointK(xSet.toFixed(2), ySet.toFixed(2));
 }
 //PointK, GraphDataKSet
 //차트데이터 안쪽에서의 상대좌표를 픽셀을주면  이에따른   데이터 값을 돌려준다.
 GraphK.prototype.getDrawChartData = function(point, graphDataKSet){
-	var yPointPercent			= GraphKUtil.getPercentByTot(this.chartDataRect.height, point.y); // 전체차에서  원하는값의차는 몇%인가
-	var xPointPercent			= GraphKUtil.getPercentByTot(this.chartDataRect.width, point.x);	
+	var yData_BetweenLength 	= graphDataKSet.getDataYBetweenLength(); 
+	var xData_BetweenLength		= graphDataKSet.getDataXBetweenLength();
+	var yMinMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMinMarginPercent);
+	var yMaxMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMaxMarginPercent);
+	var xMinMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMinMarginPercent);
+	var xMaxMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMaxMarginPercent);
 	
-	var yData					= GraphKUtil.getValueByTotInPercent(graphDataKSet.getDataYBetweenLength(), yPointPercent);//전체값의 몇 퍼센트는 얼마? 계산법 공식 ;  전체값 X 퍼센트 ÷ 100
-	var xData					= GraphKUtil.getValueByTotInPercent(graphDataKSet.getDataXBetweenLength(), xPointPercent);
+	var yMin = graphDataKSet.getDataYMin();
+	var yMax = graphDataKSet.getDataYMax();
+	var xMin = graphDataKSet.getDataXMin();
+	var xMax = graphDataKSet.getDataXMax();
+	
+	//datamargin
+//	var yMin = yMin - yMinMargin;
+//	var yMax = yMax + yMaxMargin;
+//	var xMin = xMin - xMinMargin;
+//	var xMax = xMax + xMaxMargin;
+//	
+//	yData_BetweenLength = GraphKUtil.getBetweenLength(yMin, yMax);//yMinMargin; 
+//	xData_BetweenLength = GraphKUtil.getBetweenLength(xMin, xMax);//xMinMargin; 
+	////////
+	
+	
+	
+	var yPointPercent	= GraphKUtil.getPercentByTot(this.chartDataRect.height, point.y); // 전체차에서  원하는값의차는 몇%인가
+	var xPointPercent	= GraphKUtil.getPercentByTot(this.chartDataRect.width,  point.x);	
+	
+	var yData			= GraphKUtil.getValueByTotInPercent(yData_BetweenLength, yPointPercent);//전체값의 몇 퍼센트는 얼마? 계산법 공식 ;  전체값 X 퍼센트 ÷ 100
+	var xData			= GraphKUtil.getValueByTotInPercent(xData_BetweenLength, xPointPercent);
 
-	var ySet		= graphDataKSet.getDataYMax()-yData;
-	var xSet		= graphDataKSet.getDataXMin()+xData;
+	var ySet			= yMax - yData;
+	var xSet			= xMin + xData;
 	
 	return new PointK(xSet.toFixed(2), ySet.toFixed(2));
 }
 
-////데이터정보를 주면  그범위안에있는 데이터를 가져온다.
-//GraphK.prototype.getDrawChartDatas = function(startData, endData, graphDataKSet){
-//	var newGraphDataKSet = new GraphDataKSet();  //data
-//	
-//	for ( var i = 0; i < graphDataKSet.length; i++) {
-//		var atGraphDataK	= graphDataKSet[i];		//GraphDataK
-//		var dataArray		= atGraphDataK.data; 	//[{x:1,y:1},...]
-//		for ( var y = 0; y < dataArray.length; y++) {
-//			var atData 		= dataArray[i];	//Object   ex: {x:1,y:1} 
-//			
-//			
-//		}
-//		
-//	
-//	}
-//	return newGraphDataKSet;
-//}
 
 
 
