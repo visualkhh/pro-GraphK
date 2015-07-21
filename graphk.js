@@ -5,7 +5,6 @@ GraphK.prototype.canvas 	= undefined;
 GraphK.prototype.context	= undefined;
 
 GraphK.prototype.endCanvas 	= undefined;  //마지막 차트그려진후 마지막상태.
-GraphK.prototype.initData 	= undefined;  //초기 셋팅값  
 //container > content > chart > item..
 
 GraphK.prototype.contentFillStyle		= "#FFFFFF";
@@ -23,10 +22,14 @@ GraphK.prototype.chartAxisYCount 		= 15;
 GraphK.prototype.chartAxisYGuideSize 	= 5;
 GraphK.prototype.chartAxisXVisible 		= true;
 GraphK.prototype.chartAxisYVisible 		= true;
-GraphK.prototype.chartAxisXDataMinMarginPercent 	= 5;	
-GraphK.prototype.chartAxisXDataMaxMarginPercent 	= 5;	
-GraphK.prototype.chartAxisYDataMinMarginPercent 	= 5;	
-GraphK.prototype.chartAxisYDataMaxMarginPercent 	= 5;	
+GraphK.prototype.chartAxisXDataMin      = undefined; //셋팅되지않으면 데이터값의 min max값으로처리	
+GraphK.prototype.chartAxisXDataMax      = undefined;	
+GraphK.prototype.chartAxisYDataMin      = undefined;	
+GraphK.prototype.chartAxisYDataMax      = undefined;	
+GraphK.prototype.chartAxisXDataMinMarginPercent 	= 10;	
+GraphK.prototype.chartAxisXDataMaxMarginPercent 	= 10;	
+GraphK.prototype.chartAxisYDataMinMarginPercent 	= 10;	
+GraphK.prototype.chartAxisYDataMaxMarginPercent 	= 10;	
 GraphK.prototype.chartCrossStrokeStyle 	= "#EEEEEE";
 
 
@@ -63,31 +66,28 @@ function GraphK(targetCanvas){
 	this.data = new GraphDataKSet();
 }
 GraphK.prototype.onMouseTraking = function(){
-//	var originCanvas = GraphKUtil.copyCanvas(this.canvas);
-//	var context = this.context;
 	var useThis = this;
-	var yMin = this.data.getDataYMin();
-	var yMax = this.data.getDataYMax();
-	var xMin = this.data.getDataXMin();
-	var xMax = this.data.getDataXMax();
 	this.canvas.addEventListener("mousemove", function(event) {
+		var yMin = useThis.chartAxisYDataMin;
+		var yMax = useThis.chartAxisYDataMax;
+		var xMin = useThis.chartAxisXDataMin;
+		var xMax = useThis.chartAxisXDataMax;
 	    event.preventDefault();
         var rect = event.target.getBoundingClientRect();
         var point = new PointK(event.clientX - rect.left ,event.clientY - rect.top);
 		var chartDataPoint = new PointK(point.x - useThis.chartDataRect.getStartX(), point.y - useThis.chartDataRect.getStartY());
 		
-//        console.log(point.x+"    "+point.y);
         useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
         useThis.context.drawImage(useThis.endCanvas, 0, 0);
         
         useThis.context.fillStyle			= "#000000";
+        useThis.context.strokeStyle			= "#000000";
         useThis.context.beginPath(); 
         useThis.context.moveTo(point.x, 0);
         useThis.context.lineTo(point.x, useThis.endCanvas.height);
         useThis.context.moveTo(0, point.y);
         useThis.context.lineTo(useThis.endCanvas.width, point.y);
         useThis.context.stroke(); 
-//        useThis.context.fillText(point.x+"    "+point.y, point.x, point.y);
         var atDataPoint = useThis.getDrawChartData(chartDataPoint, xMin, xMax, yMin, yMax);
         useThis.context.textAlign		= "end";
         useThis.context.textBaseline 	= "bottom";
@@ -105,14 +105,12 @@ GraphK.prototype.onDrag = function(){
 	var dragChartDataStartPoint 	= undefined;	//ChartData 그래프데이터 그리는곳부터 상대좌표
 	var dragChartDataEndPoint 		= undefined;
 	
-	var yMin = this.data.getDataYMin();
-	var yMax = this.data.getDataYMax();
-	var xMin = this.data.getDataXMin();
-	var xMax = this.data.getDataXMax();
-	
 	
 	var handleMouseEvent = function(event){
-		//console.log("---"+event.type);
+		var yMin = useThis.chartAxisYDataMin;
+		var yMax = useThis.chartAxisYDataMax;
+		var xMin = useThis.chartAxisXDataMin;
+		var xMax = useThis.chartAxisXDataMax;
 		var rect = event.target.getBoundingClientRect();
 		var point = new PointK(event.clientX - rect.left ,event.clientY - rect.top);
 		var chartDataPoint = new PointK(point.x - useThis.chartDataRect.getStartX(), point.y - useThis.chartDataRect.getStartY());
@@ -125,8 +123,6 @@ GraphK.prototype.onDrag = function(){
 			}
 		}else if(event.type=="mousemove"){
 			if(useThis.chartRect.isHit(point.x, point.y) && dragStartPoint){
-//				console.log("mousemove"+point.x+",    "+point.y+"     "+dragStartPoint);
-				
 				if(dragEndPoint){//우선지워라.
 					useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
 			        useThis.context.drawImage(useThis.endCanvas, 0, 0);
@@ -140,23 +136,29 @@ GraphK.prototype.onDrag = function(){
 				var atStartData 	= useThis.getDrawChartData(dragChartDataStartPoint, xMin, xMax, yMin, yMax);
 				var atEndData 		= useThis.getDrawChartData(dragChartDataEndPoint, xMin, xMax, yMin, yMax);
 				useThis.context.fillText(atStartData.y+",  "+atStartData.x, dragStartPoint.x, dragStartPoint.y);
-				useThis.context.fillText(atEndData.y+",  "+atEndData.x, dragEndPoint.x, dragEndPoint.y);
+				useThis.context.fillText("    "+atEndData.y+",  "+atEndData.x, dragEndPoint.x, dragEndPoint.y);
 			}
 		}else if(event.type=="mouseup"){
-//			console.log("mouseup "+dragStartPoint);
 			useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
 			useThis.context.drawImage(useThis.endCanvas, 0, 0);
 			if(dragStartPoint && dragEndPoint && dragChartDataStartPoint && dragChartDataEndPoint){
-				var atStartData 	= useThis.getDrawChartData(dragChartDataStartPoint, xMin, xMax, yMin, yMax);
-				var atEndData 		= useThis.getDrawChartData(dragChartDataEndPoint, xMin, xMax, yMin, yMax);
-//				console.log(atStartData.x+"   "+atStartData.y+"   "+atEndData.x+","+atEndData.y);
+				var dragChartDataBetweenStartPoint = new PointK(Math.min(dragChartDataStartPoint.x, dragChartDataEndPoint.x), Math.min(dragChartDataStartPoint.y, dragChartDataEndPoint.y));
+				var dragChartDataBetweenEndPoint   = new PointK(Math.max(dragChartDataStartPoint.x, dragChartDataEndPoint.x), Math.max(dragChartDataStartPoint.y, dragChartDataEndPoint.y));
+				var atStartData 	= useThis.getDrawChartData(dragChartDataBetweenStartPoint, xMin, xMax, yMin, yMax);
+				var atEndData 		= useThis.getDrawChartData(dragChartDataBetweenEndPoint, xMin, xMax, yMin, yMax);
 				var graphDataKSet = useThis.data.getBetweenData(atStartData, atEndData);
-//				console.log(graphDataKSet.length);
 				if(graphDataKSet.length>0){
-					useThis.setData(graphDataKSet); //다시그리기.
+					useThis.chartAxisYDataMin = Number(atEndData.y);
+					useThis.chartAxisYDataMax = Number(atStartData.y);
+					useThis.chartAxisXDataMin = Number(atStartData.x);
+					useThis.chartAxisXDataMax = Number(atEndData.x);
 				}else{
-					useThis.setData(useThis.initData); //다시그리기.
+					useThis.chartAxisYDataMin = undefined;
+					useThis.chartAxisYDataMax = undefined;
+					useThis.chartAxisXDataMin = undefined;
+					useThis.chartAxisXDataMax = undefined;
 				}
+
 				useThis.rendering();
 			}
 			dragStartPoint 			= undefined;
@@ -164,9 +166,7 @@ GraphK.prototype.onDrag = function(){
 			dragEndPoint 			= undefined;
 			dragChartDataEndPoint 	= undefined;
 		}else if(event.type=="mouseout"){
-//			console.log("mouseout "+dragStartPoint);
 		}else if(event.type=="mouseover"){
-//			console.log("mouseover "+dragStartPoint);
 		}
 		
 	}
@@ -185,9 +185,13 @@ GraphK.prototype.rendering = function(){
 	this.context.lineWidth 		= 1;
 	this.context.textAlign		= "center";
 	this.context.textBaseline 	= "middle";
+	
+	
+	
 	//container
 	this.containerRect = new RectK(0, 0, this.canvas.width, this.canvas.height);
 	this.containerRect.strokeRect(this.context);
+
 	
 	//content  margin set     (t,r,b,l)
 	this.contentRect = this.containerRect.getPadding(this.tmargin, this.rmargin, this.bmargin, this.lmargin);
@@ -202,7 +206,7 @@ GraphK.prototype.rendering = function(){
 	
 	this.chartDataRect = this.chartRect.getPadding(this.tChartPadding, this.rChartPadding, this.bChartPadding, this.lChartPadding);
 //	this.chartDataRect.strokeRect(this.context, this.chartStrokeStyle);
-	//console.log("---"+this.chartRect.width+"  "+this.chartDataRect.width);
+	
 	//title draw
     var metrix = this.context.measureText(this.contentTitle);
     var line_width  = metrix.width;
@@ -212,31 +216,36 @@ GraphK.prototype.rendering = function(){
 	//
 	
 	
+    this.chartAxisXDataMin = (this.chartAxisXDataMin==undefined ? this.data.getDataXMin() : this.chartAxisXDataMin); 
+    this.chartAxisYDataMin = (this.chartAxisYDataMin==undefined ? this.data.getDataYMin() : this.chartAxisYDataMin); 
+    this.chartAxisXDataMax = (this.chartAxisXDataMax==undefined ? this.data.getDataXMax() : this.chartAxisXDataMax); 
+    this.chartAxisYDataMax = (this.chartAxisYDataMax==undefined ? this.data.getDataYMax() : this.chartAxisYDataMax); 
 	
 	/////////chart  draw
     this.drawChartCosssGrid();
-    this.drawChartData(this.data);
     this.drawChartAxisGuide(this.data);
+    this.drawChartData(this.data);
     
-    
-	//-----
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
 	
-	if(!this.initData){
-		this.initData = this.data;
-	}
 };
 
 
 GraphK.prototype.drawChartData = function(graphDataKSet){
-	this.context.textAlign		="center";
-	//this.context.textBaseline 	= "middle";
-	this.context.textBaseline 	= "buttom";
+	this.context.textAlign		= "center";
+	this.context.textBaseline 	= "bottom";
 	
+	var w = this.canvas.width;
+	var h = this.canvas.height;
+	this.context.save();
+	this.context.rect(this.chartRect.getStartX(), this.chartRect.getStartY(),this.chartRect.width,this.chartRect.height);
+//	this.context.fillStyle = "#aa0000";  this.context.fill();
+	// 그래프 부분을 클리핑 
+	this.context.clip();
+
 	//chart grid Data
 	for ( var i = 0; i < graphDataKSet.length; i++) {//GraphDataKSet :  [GraphDataK,.....]
 		var atGraphKData = graphDataKSet[i]; // GraphKData
-
 		//draw...
 		if(atGraphKData.type=="line"){
 			this.drawChartLineData(atGraphKData);
@@ -246,8 +255,9 @@ GraphK.prototype.drawChartData = function(graphDataKSet){
 			this.drawChartStickData(atGraphKData);
 		}else{
 		}
-		
 	}
+	this.context.restore()
+	
 } 
 GraphK.prototype.drawChartLineData = function(graphKData){//GraphDataK
 	
@@ -303,13 +313,14 @@ GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK
 }
 
 GraphK.prototype.getDrawChartPoints = function(graphKData){
+	
 	var dataArray = graphKData.data;  //[Object,....]
 	var pointArray = new Array();
 	for ( var i = 0; i < dataArray.length; i++) {
 		var atData 	= dataArray[i];	//Object   ex: {x:1,y:1}
 		var point 	= this.getDrawChartPoint(new PointK(atData[graphKData.xVarName], atData[graphKData.yVarName]),
-				this.data.getDataXMin(), this.data.getDataXMax(),
-				this.data.getDataYMin(), this.data.getDataYMax()
+				this.chartAxisXDataMin, this.chartAxisXDataMax,
+				this.chartAxisYDataMin, this.chartAxisYDataMax
 				);
 		point.value=atData[graphKData.yVarName]+", "+atData[graphKData.xVarName];
 		pointArray.push(point);
@@ -320,15 +331,14 @@ GraphK.prototype.getDrawChartPoints = function(graphKData){
 //PointK, GraphDataKSet
 //차트데이터 데이터값을주면  상대좌표를 픽셀을 돌려준다.
 GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
+	xMin=Number(xMin); xMax=Number(xMax); yMin=Number(yMin); yMax=Number(yMax);
 	var yData_BetweenLength 	= GraphKUtil.getBetweenLength(yMin, yMax); 
 	var xData_BetweenLength		= GraphKUtil.getBetweenLength(xMin, xMax);
-//	console.log( xMin+", "+xMax+", "+yMin+", "+yMax+"  //  "+yData_BetweenLength+" "+xData_BetweenLength)
 	
 	var yMinMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMinMarginPercent);
 	var yMaxMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMaxMarginPercent);
 	var xMinMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMinMarginPercent);
 	var xMaxMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMaxMarginPercent);
-//	console.log(yData_BetweenLength+" "+yMinMargin+" "+yMaxMargin+" "+"  // "+xData_BetweenLength+"   "+xMinMargin+" "+xMaxMargin);
 	//datamargin
 	yMin = yMin - yMinMargin;
 	yMax = yMax + yMaxMargin;
@@ -343,14 +353,11 @@ GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
 	
 	var yDataPercent			= GraphKUtil.getPercentByTot(yData_BetweenLength, yAtData_BetweenLength); // 전체차에서  원하는값의차는 몇%인가
 	var xDataPercent			= GraphKUtil.getPercentByTot(xData_BetweenLength, xAtData_BetweenLength);	
-//	console.log(graphDataKSet.getDataYBetweenLength()+"   "+point.y+"  "+yDataPercent+"  //  "+graphDataKSet.getDataXBetweenLength()+"   "+point.x+"  "+xDataPercent);
 	var yPoint					= GraphKUtil.getValueByTotInPercent(this.chartDataRect.height, yDataPercent);//전체값의 몇 퍼센트는 얼마? 계산법 공식 ;  전체값 X 퍼센트 ÷ 100
 	var xPoint					= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width,  xDataPercent);
-//	console.log(this.chartDataRect.height+"    "+yDataPercent+"  "+yPoint+"  //  "+this.chartDataRect.width+"    "+xDataPercent+"  "+xPoint);
 	var ySet					= this.chartDataRect.getEndY()   - yPoint;
 	var xSet					= this.chartDataRect.getStartX() + xPoint;
 	
-//	console.log(ySet+" "+xSet);
 	if(ySet&&xSet){
 		return new PointK(xSet.toFixed(2), ySet.toFixed(2));
 	}else{
@@ -360,6 +367,7 @@ GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
 //PointK, GraphDataKSet
 //차트데이터 안쪽에서의 상대좌표를 픽셀을주면  이에따른   데이터 값을 돌려준다.
 GraphK.prototype.getDrawChartData = function(point, xMin, xMax, yMin, yMax){
+	xMin=Number(xMin); xMax=Number(xMax); yMin=Number(yMin); yMax=Number(yMax);
 	var yData_BetweenLength = GraphKUtil.getBetweenLength(yMin, yMax); 
 	var xData_BetweenLength	= GraphKUtil.getBetweenLength(xMin, xMax);
 	var yMinMargin 			= GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMinMarginPercent);
@@ -387,7 +395,6 @@ GraphK.prototype.getDrawChartData = function(point, xMin, xMax, yMin, yMax){
 
 	var ySet			= yMax - yData;
 	var xSet			= xMin + xData;
-	
 	return new PointK(xSet.toFixed(2), ySet.toFixed(2));
 }
 
@@ -401,11 +408,11 @@ GraphK.prototype.drawChartCosssGrid = function(){
 	
 	this.context.strokeStyle= this.chartCrossStrokeStyle;	
 	this.context.beginPath(); 
-	for ( var i = 1; this.chartCrossGrideVisible && i < this.chartCrossGrideXCount; i++) {
+	for ( var i = 0; this.chartCrossGrideVisible && i <= this.chartCrossGrideXCount; i++) {
 		this.context.moveTo(this.chartRect.getStartX()+(xcrossCharP*i), this.chartRect.getStartY()); 
 		this.context.lineTo(this.chartRect.getStartY()+(xcrossCharP*i), this.chartRect.getEndY()); 
 	}
-	for ( var i = 1; this.chartCrossGrideVisible && i < this.chartCrossGrideYCount; i++) {
+	for ( var i = 0; this.chartCrossGrideVisible && i <= this.chartCrossGrideYCount; i++) {
 		this.context.moveTo(this.chartRect.getStartX(), this.chartRect.getStartY()+(ycrossCharP*i)); 
 		this.context.lineTo(this.chartRect.getEndX(), this.chartRect.getStartY()+(ycrossCharP*i)); 
 	}
@@ -416,10 +423,11 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	this.context.strokeStyle	= this.chartStrokeStyle;
 	this.context.fillStyle		= this.chartStrokeStyle; //스타일있으면 그걸로셋팅.
 	//data Gride
-	var yMin	= this.data.getDataYMin();
-	var yMax	= this.data.getDataYMax();
-	var xMin	= this.data.getDataXMin(); 
-	var xMax	= this.data.getDataXMax();
+	var yMin	= this.chartAxisYDataMin;
+	var yMax	= this.chartAxisYDataMax;
+	var xMin	= this.chartAxisXDataMin; 
+	var xMax	= this.chartAxisXDataMax;
+	
 	var yData_BetweenLength = GraphKUtil.getBetweenLength(yMin, yMax); 
 	var xData_BetweenLength	= GraphKUtil.getBetweenLength(xMin, xMax);
 	
@@ -444,8 +452,6 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	var yChar	= (yMax - yMin);
 	var yP		= yChar / this.chartAxisYCount;
 	var yGP		= this.chartDataRect.height / this.chartAxisYCount;
-	//console.log(xMin+", "+xMax+", "+xP+", "+xGP);
-	//console.log(yMin+", "+yMax+", "+yP+", "+yGP);
 	//>> X
 	this.context.textAlign		= "center";
 	this.context.textBaseline	= "top";
@@ -472,7 +478,6 @@ GraphK.prototype.drawChartAxisGuide = function(){
 		this.context.lineTo(setX+this.chartAxisYGuideSize, setY); 
 	}
 	this.context.stroke(); 
-	//-------------
 }
 
 
