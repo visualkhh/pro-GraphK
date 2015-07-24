@@ -238,7 +238,6 @@ GraphDataKSet.prototype.getBetweenData = function(startData, endData, name){//[G
 			var endX 	= Math.max(startData.x, endData.x);
 			var startY 	= Math.min(startData.y, endData.y);
 			var endY 	= Math.max(startData.y, endData.y);
-			
 			if(startX <= Number(atData[atGraphDataK.xVarName]) && startY <= Number(atData[atGraphDataK.yVarName]) &&
 				endX >= Number(atData[atGraphDataK.xVarName]) && endY >= Number(atData[atGraphDataK.yVarName])){
 				newDataArray.push(atData);

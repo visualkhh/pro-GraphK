@@ -22,6 +22,8 @@ GraphK.prototype.chartAxisYCount 		= 15;
 GraphK.prototype.chartAxisYGuideSize 	= 5;
 GraphK.prototype.chartAxisXVisible 		= true;
 GraphK.prototype.chartAxisYVisible 		= true;
+GraphK.prototype.chartAxisScaleVisible 	= true; //아래쪽에 보이는 스케일 표식 보일거냐?
+GraphK.prototype.chartDataVisible 		= true; //차트에 값표시할꺼냐
 GraphK.prototype.chartAxisXDataMin      = undefined; //셋팅되지않으면 데이터값의 min max값으로처리	
 GraphK.prototype.chartAxisXDataMax      = undefined;	
 GraphK.prototype.chartAxisYDataMin      = undefined;	
@@ -223,8 +225,8 @@ GraphK.prototype.rendering = function(){
 	
 	/////////chart  draw
     this.drawChartCosssGrid();
-    this.drawChartAxisGuide(this.data);
     this.drawChartData(this.data);
+    this.drawChartAxisGuide(this.data);
     
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
 	
@@ -251,6 +253,8 @@ GraphK.prototype.drawChartData = function(graphDataKSet){
 			this.drawChartLineData(atGraphKData);
 		}else if(atGraphKData.type=="dot"){
 			this.drawChartDotData(atGraphKData);
+		}else if(atGraphKData.type=="arc"){
+			this.drawChartArcData(atGraphKData);
 		}else if(atGraphKData.type=="stick"){
 			this.drawChartStickData(atGraphKData);
 		}else{
@@ -273,27 +277,54 @@ GraphK.prototype.drawChartLineData = function(graphKData){//GraphDataK
 		}else{
 			this.context.lineTo(atPoint.x, atPoint.y);
 		}
-		this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
 	}
 	this.context.stroke(); 
 }
 GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
 	this.context.strokeStyle 	= graphKData.strokeStyle;
 	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
-	this.context.beginPath(); 
+	this.context.textAlign 		= "center";
+	this.context.textBaseline 	= "middle";
+	
 	
 	var pointArray = this.getDrawChartPoints(graphKData);
 	for ( var i = 0; i < pointArray.length; i++) {
+		this.context.beginPath(); 
 		var atPoint = pointArray[i];
 		var widthH  = (graphKData.width/2);
 		
 		var startX 	= atPoint.x - widthH;
-		var startY 	= atPoint.y;
+		var startY 	= atPoint.y - widthH;
 		this.context.fillRect(startX, startY, graphKData.width,  graphKData.width );
-		this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+		this.context.fillStyle 		= "#000000"; 
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+		this.context.fillStyle 		= graphKData.strokeStyle; 
+		this.context.stroke(); 
 	}
-	this.context.stroke(); 
-} 
+}
+GraphK.prototype.drawChartArcData = function(graphKData){//GraphDataK
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.textAlign 		= "center";
+	this.context.textBaseline 	= "middle";
+	
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		this.context.beginPath(); 
+		var atPoint = pointArray[i];
+		var widthH  = (graphKData.width/2);
+		this.context.arc(atPoint.x, atPoint.y, graphKData.width, 0, Math.PI * 2, true); 
+		this.context.fill();
+		this.context.fillStyle 		= "#000000"; 
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+		this.context.fillStyle 		= graphKData.strokeStyle; 
+		this.context.stroke(); 
+	}
+}
 GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK 
 	this.context.strokeStyle 	= graphKData.strokeStyle;
 	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
@@ -307,7 +338,8 @@ GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK
 		var startX 	= atPoint.x - widthH;
 		var startY 	= atPoint.y;
 		this.context.fillRect(startX, startY, graphKData.width, this.chartRect.getEndY()-startY );
-		this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
 	}
 	this.context.stroke(); 
 }
@@ -456,28 +488,100 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	this.context.textAlign		= "center";
 	this.context.textBaseline	= "top";
 	
-	this.context.beginPath();
 	this.context.strokeStyle = this.chartStrokeStyle;
 	for ( var i = 0; this.chartAxisXVisible && i <= this.chartAxisXCount; i++) {
+		this.context.beginPath();
 		var setX = this.chartDataRect.getStartX()+(xGP*i);
 		var setY = this.chartRect.getEndY();
 		this.context.fillText((xMin+(xP*i)).toFixed(1), setX, setY);  //chart padding값..추가
 		//눈꿈그리기
 		this.context.moveTo(setX, setY); 
 		this.context.lineTo(setX, setY-this.chartAxisXGuideSize); 
+		this.context.stroke(); 
 	}
 	//>> Y
 	this.context.textAlign		= "end";
 	this.context.textBaseline	= "middle";
 	for ( var i = 0; this.chartAxisYVisible && i <= this.chartAxisYCount; i++) {
+		this.context.beginPath();
 		var setX = this.chartRect.getStartX();
 		var setY = this.chartDataRect.getEndY()-(yGP*i);
 		this.context.fillText((yMin+(yP*i)).toFixed(1),setX , setY);  //chart padding값..추가
 		//눈꿈그리기
 		this.context.moveTo(setX, setY); 
 		this.context.lineTo(setX+this.chartAxisYGuideSize, setY); 
+		this.context.stroke(); 
 	}
-	this.context.stroke(); 
+	
+	
+	if(this.chartAxisScaleVisible){
+		
+		this.context.fillStyle = "rgba(225, 225, 225, 0.5)";//"#EAEAEA"; 
+		this.context.fillRect(this.chartDataRect.getStartX(), this.chartDataRect.getEndY(), this.chartDataRect.width, 10);
+		//xMin
+		//xMax
+		//yData_BetweenLength
+		//xData_BetweenLength
+		
+		var xBetweenLength		= GraphKUtil.getBetweenLength(this.chartDataRect.getStartX(), this.chartDataRect.getEndX());
+	//	console.log("var xBetweenLength		= GraphKUtil.getBetweenLength(this.chartDataRect.getStartX(), this.chartDataRect.getEndX());");
+	//	console.log(xBetweenLength +"  " +this.chartDataRect.getStartX()+"  "+this.chartDataRect.getEndX());
+		var dataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), this.data.getDataXMax());
+	//	console.log("var dataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), this.data.getDataXMax());");
+	//	console.log(dataBetweenLength +"  " +this.data.getDataXMin()+"  "+this.data.getDataXMax());
+		var xMinBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMin);
+	//	console.log("var xMinBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMin);");
+	//	console.log(xMinBetweenLength +"  " +this.data.getDataXMin()+"  "+xMin);
+		var xMaxBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMax);
+	//	console.log("var xMaxBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMax);");
+	//	console.log(xMaxBetweenLength +"  " +this.data.getDataXMin()+"  "+xMax);
+		
+		var xMinPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMinBetweenLength);
+	//	console.log("var xMinPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMinBetweenLength);");
+	//	console.log(xMinPercent +"  " +dataBetweenLength+"  "+xMinBetweenLength);
+		var xMaxPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMaxBetweenLength);
+	//	console.log("var xMaxPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMaxBetweenLength);");
+	//	console.log(xMaxPercent +"  " +dataBetweenLength+"  "+xMaxBetweenLength);
+		
+		var startX				= GraphKUtil.getValueByTotInPercent(xBetweenLength, xMinPercent);
+	//	console.log("var startX				= GraphKUtil.getValueByTotInPercent(xBetweenLength, xMinPercent);");
+	//	console.log(startX +"  " +xBetweenLength+"  "+xMinPercent);
+		var setWidth			= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width, xMaxPercent);
+	//	console.log("var setWidth			= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width, xMaxPercent);");
+	//	console.log(setWidth +"  " +this.chartDataRect.width+"  "+xMaxPercent);
+		if(startX<0){
+			startX=0;
+		}
+		if(setWidth>this.chartDataRect.width){
+			setWidth = this.chartDataRect.width;
+		}
+	//	console.log (
+	//			" xMin                " + xMin               + 
+	//			"\r\n xMax                " + xMax               + 
+	//			"\r\n"+
+	//			"\r\n this.data.getDataXMax() " + this.data.getDataXMax()               + 
+	//			"\r\n this.data.getDataXMin() " + this.data.getDataXMin()               + 
+	//			"\r\n"+
+	//			"\r\n yData_BetweenLength " + yData_BetweenLength+ 
+	//			"\r\n xData_BetweenLength " + xData_BetweenLength+ 
+	//			"\r\n"+
+	//			"\r\n xBetweenLength		 " + xBetweenLength		+
+	//			"\r\n dataBetweenLength 	 " + dataBetweenLength 	+
+	//			"\r\n"+
+	//			"\r\n xMinBetweenLength 	 " + xMinBetweenLength 	+
+	//			"\r\n xMaxBetweenLength 	 " + xMaxBetweenLength 	+
+	//			"\r\n"+
+	//			"\r\n xMinPercent		 " + xMinPercent		+	
+	//			"\r\n xMaxPercent		 " + xMaxPercent		+	
+	//			"\r\n"+
+	//			"\r\n startX				 " + startX				+
+	//			"\r\n setWidth			 " + setWidth			
+	//	);
+		this.context.fillStyle = "rgba(30, 30, 30, 0.5)";//"#EAEAEA"; 
+		this.context.fillRect(this.chartDataRect.getStartX()+startX, this.chartDataRect.getEndY()+3, setWidth-startX,5);
+	}
+	
+	
 }
 
 
@@ -487,6 +591,10 @@ GraphK.prototype.addData = function(data){
 	this.data.push(data);
 }
 GraphK.prototype.setData = function(data){
+	this.chartAxisXDataMin      = undefined;
+	this.chartAxisXDataMax      = undefined;
+	this.chartAxisYDataMin      = undefined;
+	this.chartAxisYDataMax      = undefined;
 	this.data = data;
 }
 

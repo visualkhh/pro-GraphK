@@ -9,69 +9,73 @@
 <script type="text/javascript" src="./graphk.js"></script>
 
 <script type="text/javascript">
+var graph1 = undefined;
+var graphDataKSet = new GraphDataKSet();
 	document.addEventListener("DOMContentLoaded", function() {
-		var graph1 = new GraphK("#can1");
+		graph1 = new GraphK("#can1");
+		
+		//option
 		graph1.setMargin(20,10,10,10); //t, r, b, l 
 		graph1.setPadding(20,20,40,40);
-		graph1.addData(getTempStickData("data0"));
-		graph1.addData(getTempLineData("data1"));
-		graph1.addData(getTempDotData("data2"));
-// 		graph1.addData(getTempDotData("data2"));
-// 		graph1.addData(getTempDotData("data2"));
-// 		graph1.addData(getTempLineData("data2"));
-// 		graph1.addData(getTempLineData("data3"));
-// 		graph1.addData(getTempLineData("data4"));
+// 		graph1.chartDataVisible 		= false;
+// 		graph1.chartAxisScaleVisible	= false;
+// 		graph1.chartAxisXDataMinMarginPercent = 0;
+// 		graph1.chartAxisXDataMaxMarginPercent = 0;
+// 		graph1.chartAxisYDataMinMarginPercent = 0;
+// 		graph1.chartAxisYDataMaxMarginPercent = 0;
+// 		graph1.rChartPadding				  = 0;
+// 		graph1.lChartPadding				  = 0;
+// 		graph1.addData(getTempData("data0","line"));
+// 		graph1.addData(getTempData("data0","dot"));
+		graphDataKSet.push(getTempData("data0","line"));
+		graphDataKSet.push(getTempData("data0","line"));
+		graphDataKSet.push(getTempData("data1","dot",5));
+// 		graphDataKSet.push(getTempData("data2","stick")); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+		graph1.setData(graphDataKSet);
 		graph1.rendering();
 // 		graph1.onMouseTraking();
 		graph1.onDrag();
+		
+		setInterval(function(){
+			graph1.chartAxisXDataMin      = undefined;
+			graph1.chartAxisXDataMax      = undefined;
+			graph1.chartAxisXDataMin      = graphDataKSet.getDataXMax()-100;
+			graph1.chartAxisXDataMax      = graphDataKSet.getDataXMax();
+			graph1.chartAxisYDataMin      = undefined;
+			graph1.chartAxisYDataMax      = undefined;
+			for(var i = 0 ; i < graphDataKSet.length; i++){
+				graphDataKSet[i].data.push(getRandomObj(graphDataKSet.getDataXMax()+1,(Math.random() * 500).toFixed(2)));
+			}
+			graph1.rendering();
+		},100);
 	},false);
 	
-var x=21;
-	function getTempDotData(name){
+	function getTempData(name, type, width, length){
+		name = name||"name";
+		type = type||"line";
+		width = width || 10;
+		length = length || 50;
 		var data = new Array();
-		for(var y = 5 ; y < x; y++){
-			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
+		for(var x = 1 ; x < length; x++){
+			data.push(getRandomObj(x,(Math.random() * 500).toFixed(2)));
 		}
 		var graphKData = new GraphDataK(name,data);
-		graphKData.setType("dot");
-		graphKData.setWidth(5);
-		graphKData.setFillStyle(getRandomColor());
-		graphKData.setStrokeStyle(getRandomColor());
-		graphKData.setFillStyle(getRandomColor());
+		graphKData.setType(type);
+		graphKData.setWidth(width);
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		graphKData.setStrokeStyle(GraphKUtil.getRandomColor());
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
 		return graphKData;
 	} 
-	function getTempLineData(name){
-		var data = new Array();
-		for(var y = 5 ; y < x; y++){
-			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
-// 			data.push( {"x": y+8, "y":(y).toFixed(2)});
-		}
-		var graphKData = new GraphDataK(name,data);
-		graphKData.setType("line");
-		graphKData.setWidth(10);
-		graphKData.setStrokeStyle(getRandomColor());
-		return graphKData;
-	} 
-	function getTempStickData(name){
-		var data = new Array();
-		for(var y = 5 ; y < x; y++){
-			data.push( {"x": y+8, "y":(Math.random() * 200).toFixed(2)});
-		}
-		var graphKData = new GraphDataK(name,data);
-		graphKData.setType("stick");
-		graphKData.setWidth(50);
-		graphKData.setFillStyle(getRandomColor());
-		graphKData.setStrokeStyle(getRandomColor());
-		graphKData.setFillStyle(getRandomColor());
-		return graphKData;
-	} 
-	function getRandomColor(){
-	    var letters = '0123456789ABCDEF'.split('');
-	    var color = '#';
-	    for (var i = 0; i < 6; i++ ) {
-	        color += letters[Math.floor(Math.random() * 16)];
-	    }
-	    return color;
+
+	function getRandomObj(x,y){
+		if(x==undefined)
+			x = Math.random() * 500;
+		if(y==undefined)
+			y = Math.random() * 500;
+		
+		return {"x":x, "y":y};
 	}
 	
 </script>
