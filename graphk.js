@@ -518,42 +518,57 @@ GraphK.prototype.drawChartAxisGuide = function(){
 		
 		this.context.fillStyle = "rgba(225, 225, 225, 0.5)";//"#EAEAEA"; 
 		this.context.fillRect(this.chartDataRect.getStartX(), this.chartDataRect.getEndY(), this.chartDataRect.width, 10);
+		this.context.fillRect(this.chartDataRect.getEndX(), this.chartDataRect.getStartY(), 10, this.chartDataRect.height);
 		//xMin
 		//xMax
 		//yData_BetweenLength
 		//xData_BetweenLength
 		
 		var xBetweenLength		= GraphKUtil.getBetweenLength(this.chartDataRect.getStartX(), this.chartDataRect.getEndX());
+		var yBetweenLength		= GraphKUtil.getBetweenLength(this.chartDataRect.getStartY(), this.chartDataRect.getEndY());
 	//	console.log("var xBetweenLength		= GraphKUtil.getBetweenLength(this.chartDataRect.getStartX(), this.chartDataRect.getEndX());");
 	//	console.log(xBetweenLength +"  " +this.chartDataRect.getStartX()+"  "+this.chartDataRect.getEndX());
-		var dataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), this.data.getDataXMax());
+		var xDataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), this.data.getDataXMax());
+		var yDataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataYMin(), this.data.getDataYMax());
 	//	console.log("var dataBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), this.data.getDataXMax());");
 	//	console.log(dataBetweenLength +"  " +this.data.getDataXMin()+"  "+this.data.getDataXMax());
 		var xMinBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMin);
+		var yMinBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataYMin(), yMin);
 	//	console.log("var xMinBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMin);");
 	//	console.log(xMinBetweenLength +"  " +this.data.getDataXMin()+"  "+xMin);
 		var xMaxBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMax);
+		var yMaxBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataYMin(), yMax);
 	//	console.log("var xMaxBetweenLength 	= GraphKUtil.getBetweenLength(this.data.getDataXMin(), xMax);");
 	//	console.log(xMaxBetweenLength +"  " +this.data.getDataXMin()+"  "+xMax);
 		
-		var xMinPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMinBetweenLength);
+		var xMinPercent			= GraphKUtil.getPercentByTot(xDataBetweenLength, xMinBetweenLength);
+		var yMinPercent			= GraphKUtil.getPercentByTot(yDataBetweenLength, yMinBetweenLength);
 	//	console.log("var xMinPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMinBetweenLength);");
 	//	console.log(xMinPercent +"  " +dataBetweenLength+"  "+xMinBetweenLength);
-		var xMaxPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMaxBetweenLength);
+		var xMaxPercent			= GraphKUtil.getPercentByTot(xDataBetweenLength, xMaxBetweenLength);
+		var yMaxPercent			= GraphKUtil.getPercentByTot(yDataBetweenLength, yMaxBetweenLength);
 	//	console.log("var xMaxPercent			= GraphKUtil.getPercentByTot(dataBetweenLength, xMaxBetweenLength);");
 	//	console.log(xMaxPercent +"  " +dataBetweenLength+"  "+xMaxBetweenLength);
 		
 		var startX				= GraphKUtil.getValueByTotInPercent(xBetweenLength, xMinPercent);
+		var startY				= GraphKUtil.getValueByTotInPercent(yBetweenLength, yMinPercent);
 	//	console.log("var startX				= GraphKUtil.getValueByTotInPercent(xBetweenLength, xMinPercent);");
 	//	console.log(startX +"  " +xBetweenLength+"  "+xMinPercent);
 		var setWidth			= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width, xMaxPercent);
+		var setHeight			= GraphKUtil.getValueByTotInPercent(this.chartDataRect.height, yMaxPercent);
 	//	console.log("var setWidth			= GraphKUtil.getValueByTotInPercent(this.chartDataRect.width, xMaxPercent);");
 	//	console.log(setWidth +"  " +this.chartDataRect.width+"  "+xMaxPercent);
 		if(startX<0){
 			startX=0;
 		}
+		if(startY<0){
+			startY=0;
+		}
 		if(setWidth>this.chartDataRect.width){
 			setWidth = this.chartDataRect.width;
+		}
+		if(setHeight>this.chartDataRect.height){
+			setHeight = this.chartDataRect.height;
 		}
 	//	console.log (
 	//			" xMin                " + xMin               + 
@@ -578,7 +593,9 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	//			"\r\n setWidth			 " + setWidth			
 	//	);
 		this.context.fillStyle = "rgba(30, 30, 30, 0.5)";//"#EAEAEA"; 
-		this.context.fillRect(this.chartDataRect.getStartX()+startX, this.chartDataRect.getEndY()+3, setWidth-startX,5);
+		this.context.fillRect(this.chartDataRect.getStartX()+startX, this.chartDataRect.getEndY()+2, setWidth-startX,5);
+		this.context.fillRect(this.chartDataRect.getEndX()+2, this.chartDataRect.getEndY()-startY, 5, -setHeight+startY);
+		
 	}
 	
 	

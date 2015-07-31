@@ -17,8 +17,8 @@ var graphDataKSet = new GraphDataKSet();
 		//option
 		graph1.setMargin(20,10,10,10); //t, r, b, l 
 		graph1.setPadding(20,20,40,40);
-// 		graph1.chartDataVisible 		= false;
-// 		graph1.chartAxisScaleVisible	= false;
+		graph1.chartDataVisible 		= false;
+		graph1.chartAxisScaleVisible	= false;
 // 		graph1.chartAxisXDataMinMarginPercent = 0;
 // 		graph1.chartAxisXDataMaxMarginPercent = 0;
 // 		graph1.chartAxisYDataMinMarginPercent = 0;
@@ -27,35 +27,94 @@ var graphDataKSet = new GraphDataKSet();
 // 		graph1.lChartPadding				  = 0;
 // 		graph1.addData(getTempData("data0","line"));
 // 		graph1.addData(getTempData("data0","dot"));
-		graphDataKSet.push(getTempData("data0","line"));
-		graphDataKSet.push(getTempData("data0","line"));
-		graphDataKSet.push(getTempData("data1","dot",5));
 // 		graphDataKSet.push(getTempData("data2","stick")); 
+		graphDataKSet.push(getTempData("data0","line"));
+		graphDataKSet.push(getTempData("data0","line"));
+// 		graphDataKSet.push(getTempData("data1","dot",5));
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
+// 		graphDataKSet.push(getTempData("data3","arc",5)); 
 // 		graphDataKSet.push(getTempData("data3","arc",5)); 
 		graph1.setData(graphDataKSet);
 		graph1.rendering();
-// 		graph1.onMouseTraking();
+		graph1.onMouseTraking();
 		graph1.onDrag();
 		
-		setInterval(function(){
-			graph1.chartAxisXDataMin      = undefined;
-			graph1.chartAxisXDataMax      = undefined;
-			graph1.chartAxisXDataMin      = graphDataKSet.getDataXMax()-100;
-			graph1.chartAxisXDataMax      = graphDataKSet.getDataXMax();
-			graph1.chartAxisYDataMin      = undefined;
-			graph1.chartAxisYDataMax      = undefined;
-			for(var i = 0 ; i < graphDataKSet.length; i++){
-				graphDataKSet[i].data.push(getRandomObj(graphDataKSet.getDataXMax()+1,(Math.random() * 500).toFixed(2)));
-			}
-			graph1.rendering();
-		},100);
+// 		setInterval(function(){
+// 			graph1.chartAxisXDataMin      = undefined;
+// 			graph1.chartAxisXDataMax      = undefined;
+// 			graph1.chartAxisXDataMin      = graphDataKSet.getDataXMax()-100;
+// 			graph1.chartAxisXDataMax      = graphDataKSet.getDataXMax();
+// 			graph1.chartAxisYDataMin      = undefined;
+// 			graph1.chartAxisYDataMax      = undefined;
+// 			for(var i = 0 ; i < graphDataKSet.length; i++){
+// 				graphDataKSet[i].width = (Math.random() * 50);
+// 				graphDataKSet[i].data.push(getRandomObj(graphDataKSet.getDataXMax()+1,(Math.random() * 500).toFixed(2)));
+// 			}
+// 			graph1.rendering();
+// 		},100);
 	},false);
 	
 	function getTempData(name, type, width, length){
 		name = name||"name";
 		type = type||"line";
 		width = width || 10;
-		length = length || 50;
+		length = length || 20;
 		var data = new Array();
 		for(var x = 1 ; x < length; x++){
 			data.push(getRandomObj(x,(Math.random() * 500).toFixed(2)));
