@@ -23,6 +23,8 @@ GraphK.prototype.chartAxisYGuideSize 	= 5;
 GraphK.prototype.chartAxisXVisible 		= true;
 GraphK.prototype.chartAxisYVisible 		= true;
 GraphK.prototype.chartAxisScaleVisible 	= true; //아래쪽에 보이는 스케일 표식 보일거냐?
+GraphK.prototype.chartAxisXFnc 			= undefined;
+GraphK.prototype.chartAxisYFnc 			= undefined;
 GraphK.prototype.chartDataVisible 		= true; //차트에 값표시할꺼냐
 GraphK.prototype.chartAxisXDataMin      = undefined; //셋팅되지않으면 데이터값의 min max값으로처리	
 GraphK.prototype.chartAxisXDataMax      = undefined;	
@@ -51,10 +53,13 @@ GraphK.prototype.rmargin	= 10;
 GraphK.prototype.bmargin	= 10;
 GraphK.prototype.lmargin	= 10;
 
-GraphK.prototype.tChartPadding 	= 30;
-GraphK.prototype.rChartPadding 	= 30;
-GraphK.prototype.bChartPadding 	= 30;
-GraphK.prototype.lChartPadding 	= 30;
+GraphK.prototype.tChartPadding 	= 01;
+GraphK.prototype.rChartPadding 	= 01;
+GraphK.prototype.bChartPadding 	= 01;
+GraphK.prototype.lChartPadding 	= 01;
+
+//transfer
+
 
 
 GraphK.prototype.data;//	= new GraphDataKSet();  //extends Array     [GraphDataK,...]  데이타..
@@ -251,6 +256,8 @@ GraphK.prototype.drawChartData = function(graphDataKSet){
 		//draw...
 		if(atGraphKData.type=="line"){
 			this.drawChartLineData(atGraphKData);
+		}else if(atGraphKData.type=="linefill"){
+			this.drawChartLineFillData(atGraphKData);
 		}else if(atGraphKData.type=="dot"){
 			this.drawChartDotData(atGraphKData);
 		}else if(atGraphKData.type=="arc"){
@@ -272,14 +279,49 @@ GraphK.prototype.drawChartLineData = function(graphKData){//GraphDataK
 	var pointArray = this.getDrawChartPoints(graphKData);
 	for ( var i = 0; i < pointArray.length; i++) {
 		var atPoint = pointArray[i];
-		if(i==0){
+		if(i==0){ //처음
 			this.context.moveTo(atPoint.x, atPoint.y);
 		}else{
 			this.context.lineTo(atPoint.x, atPoint.y);
 		}
+		
+	      
 		if(this.chartDataVisible)
 			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
 	}
+	//this.context.fillStyle = '#8ED6FF';
+	//this.context.fill();
+//	this.context.closePath();
+	this.context.stroke(); 
+}
+GraphK.prototype.drawChartLineFillData = function(graphKData){//GraphDataK
+	
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.beginPath(); 
+	
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		var atPoint = pointArray[i];
+		if(i==0){ //처음
+			//this.context.moveTo(atPoint.x, atPoint.y);
+			this.context.moveTo(0, this.canvas.height);
+			this.context.lineTo(atPoint.x, atPoint.y);
+		}else{
+			this.context.lineTo(atPoint.x, atPoint.y);
+		}
+		
+		if((i+1)==pointArray.length){
+			this.context.lineTo(this.canvas.width, this.canvas.height);
+			
+		}
+	      
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+	}
+	//this.context.fillStyle = '#8ED6FF';
+	this.context.fill();
+	this.context.closePath();
 	this.context.stroke(); 
 }
 GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
@@ -486,27 +528,32 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	var yGP		= this.chartDataRect.height / this.chartAxisYCount;
 	//>> X
 	this.context.textAlign		= "center";
-	this.context.textBaseline	= "top";
+	this.context.textBaseline	= "end";
 	
 	this.context.strokeStyle = this.chartStrokeStyle;
 	for ( var i = 0; this.chartAxisXVisible && i <= this.chartAxisXCount; i++) {
 		this.context.beginPath();
 		var setX = this.chartDataRect.getStartX()+(xGP*i);
 		var setY = this.chartRect.getEndY();
-		this.context.fillText((xMin+(xP*i)).toFixed(1), setX, setY);  //chart padding값..추가
+		var atData = (xMin+(xP*i)).toFixed(1);					//사용자가 정의한 트랜스퍼 함수있으면 그거태워라
+		atData = this.chartAxisXFnc?this.chartAxisXFnc(atData,i):atData;
+		this.context.fillText(atData, setX, setY);  //chart padding값..추가
 		//눈꿈그리기
 		this.context.moveTo(setX, setY); 
 		this.context.lineTo(setX, setY-this.chartAxisXGuideSize); 
 		this.context.stroke(); 
 	}
 	//>> Y
-	this.context.textAlign		= "end";
+//	this.context.textAlign		= "end";
+	this.context.textAlign		= "top";
 	this.context.textBaseline	= "middle";
 	for ( var i = 0; this.chartAxisYVisible && i <= this.chartAxisYCount; i++) {
 		this.context.beginPath();
 		var setX = this.chartRect.getStartX();
 		var setY = this.chartDataRect.getEndY()-(yGP*i);
-		this.context.fillText((yMin+(yP*i)).toFixed(1),setX , setY);  //chart padding값..추가
+		var atData = (yMin+(yP*i)).toFixed(1);					//사용자가 정의한 트랜스퍼 함수있으면 그거태워라
+		atData = this.chartAxisYFnc?this.chartAxisYFnc(atData):atData;
+		this.context.fillText(atData,setX , setY);  //chart padding값..추가
 		//눈꿈그리기
 		this.context.moveTo(setX, setY); 
 		this.context.lineTo(setX+this.chartAxisYGuideSize, setY); 
