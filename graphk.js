@@ -13,6 +13,9 @@ GraphK.prototype.contentTitle			= "TITLE";
 GraphK.prototype.contentStrokeStyle		= "#222222";
 GraphK.prototype.chartFillStyle			= "#FFFFFF";
 GraphK.prototype.chartStrokeStyle 		= "#000000";
+GraphK.prototype.chartContainerRectVisible = false;
+GraphK.prototype.chartMarginRectVisible = false;
+GraphK.prototype.chartPaddingRectVisible= false;
 GraphK.prototype.chartCrossGrideVisible = true;
 GraphK.prototype.chartCrossGrideXCount 	= 10;
 GraphK.prototype.chartCrossGrideYCount 	= 10;
@@ -53,10 +56,10 @@ GraphK.prototype.rmargin	= 10;
 GraphK.prototype.bmargin	= 10;
 GraphK.prototype.lmargin	= 10;
 
-GraphK.prototype.tChartPadding 	= 01;
-GraphK.prototype.rChartPadding 	= 01;
-GraphK.prototype.bChartPadding 	= 01;
-GraphK.prototype.lChartPadding 	= 01;
+GraphK.prototype.tChartPadding 	= 10;
+GraphK.prototype.rChartPadding 	= 10;
+GraphK.prototype.bChartPadding 	= 10;
+GraphK.prototype.lChartPadding 	= 10;
 
 //transfer
 
@@ -184,31 +187,36 @@ GraphK.prototype.onDrag = function(){
 	this.canvas.addEventListener("mouseover", handleMouseEvent, false);
 }
 
-
 GraphK.prototype.rendering = function(){
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
 	this.context = this.canvas.getContext("2d");
+	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	this.context.clearRect(0, 0, this.context.width, this.context.height);
 	this.context.lineWidth 		= 1;
 	this.context.textAlign		= "center";
 	this.context.textBaseline 	= "middle";
 	
+
+	
 	
 	
 	//container
 	this.containerRect = new RectK(0, 0, this.canvas.width, this.canvas.height);
+	if(this.chartContainerRectVisible)
 	this.containerRect.strokeRect(this.context);
 
 	
 	//content  margin set     (t,r,b,l)
 	this.contentRect = this.containerRect.getPadding(this.tmargin, this.rmargin, this.bmargin, this.lmargin);
 	this.contentRect.fillRect(this.context, this.contentFillStyle);
+	if(this.chartMarginRectVisible)
 	this.contentRect.strokeRect(this.context, this.contentStrokeStyle);
 	
 	
 	//chart padding set  (t,r,b,l)
 	this.chartRect = this.contentRect.getPadding(this.tpadding, this.rpadding, this.bpadding, this.lpadding);
 	this.chartRect.fillRect(this.context, this.chartFillStyle);
+	if(this.chartPaddingRectVisible)
 	this.chartRect.strokeRect(this.context, this.chartStrokeStyle);
 	
 	this.chartDataRect = this.chartRect.getPadding(this.tChartPadding, this.rChartPadding, this.bChartPadding, this.lChartPadding);
@@ -228,11 +236,14 @@ GraphK.prototype.rendering = function(){
     this.chartAxisXDataMax = (this.chartAxisXDataMax==undefined ? this.data.getDataXMax() : this.chartAxisXDataMax); 
     this.chartAxisYDataMax = (this.chartAxisYDataMax==undefined ? this.data.getDataYMax() : this.chartAxisYDataMax); 
 	
+
 	/////////chart  draw
     this.drawChartCosssGrid();
     this.drawChartData(this.data);
     this.drawChartAxisGuide(this.data);
     
+    
+	
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
 	
 };
@@ -484,7 +495,7 @@ GraphK.prototype.drawChartCosssGrid = function(){
 	this.context.beginPath(); 
 	for ( var i = 0; this.chartCrossGrideVisible && i <= this.chartCrossGrideXCount; i++) {
 		this.context.moveTo(this.chartRect.getStartX()+(xcrossCharP*i), this.chartRect.getStartY()); 
-		this.context.lineTo(this.chartRect.getStartY()+(xcrossCharP*i), this.chartRect.getEndY()); 
+		this.context.lineTo(this.chartRect.getStartX()+(xcrossCharP*i), this.chartRect.getEndY()); 
 	}
 	for ( var i = 0; this.chartCrossGrideVisible && i <= this.chartCrossGrideYCount; i++) {
 		this.context.moveTo(this.chartRect.getStartX(), this.chartRect.getStartY()+(ycrossCharP*i)); 
@@ -527,7 +538,7 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	var yP		= yChar / this.chartAxisYCount;
 	var yGP		= this.chartDataRect.height / this.chartAxisYCount;
 	//>> X
-	this.context.textAlign		= "center";
+	this.context.textAlign		= "left";
 	this.context.textBaseline	= "end";
 	
 	this.context.strokeStyle = this.chartStrokeStyle;
@@ -545,8 +556,8 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	}
 	//>> Y
 //	this.context.textAlign		= "end";
-	this.context.textAlign		= "top";
-	this.context.textBaseline	= "middle";
+	this.context.textAlign		= "right";
+	this.context.textBaseline	= "end";
 	for ( var i = 0; this.chartAxisYVisible && i <= this.chartAxisYCount; i++) {
 		this.context.beginPath();
 		var setX = this.chartRect.getStartX();
