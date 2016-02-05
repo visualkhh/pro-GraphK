@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Insert title here</title>
+
+<script type="text/javascript" src="./graphk_util.js"></script>
+<script type="text/javascript" src="./graphk_object.js"></script>
+<script type="text/javascript" src="./graphk.js"></script>
+
+<script type="text/javascript">
+//------ff
+var graph1 = undefined;
+function re(){
+	graph1.rendering();
+}
+var graphDataKSet = new GraphDataKSet();
+	document.addEventListener("DOMContentLoaded", function() {
+		
+		graph1 = new GraphK("#can1");
+		
+		//option
+		graph1.chartDataVisible 		= false;
+		graph1.chartAxisScaleVisible	= false;
+		graph1.setMargin(10,25,10,0); //t, r, b, l 
+		graph1.setPadding(1,1,1,1);
+		graph1.chartAxisXDataMinMarginPercent = 5;
+		graph1.chartAxisXDataMaxMarginPercent = 5;
+		graph1.chartAxisYDataMinMarginPercent = 5;
+		graph1.chartAxisYDataMaxMarginPercent = 5;
+		graph1.chartAxisXCount = 5
+		graph1.chartAxisYCount =4;
+// 		graph1.rChartPadding				  = 0;
+// 		graph1.lChartPadding				  = 0;
+// 		graph1.addData(getTempData("data0","line"));
+// 		graph1.addData(getTempData("data0","dot"));
+// 		graphDataKSet.push(getTempData("data2","stick")); 
+// 		graphDataKSet.push(getTempData("data0","dot"));
+		graphDataKSet.push(getTempData("data0","linegroup",3));
+// 		graphDataKSet.push(getTempData("data0","linefill",3));
+		graph1.setData(graphDataKSet);
+		graph1.rendering();
+		graph1.onMouseTraking();
+		graph1.onDrag();
+		
+// 		setInterval(function(){
+// 			graph1.chartAxisXDataMin      = undefined;
+// 			graph1.chartAxisXDataMax      = undefined;
+// 			graph1.chartAxisXDataMin      = graphDataKSet.getDataXMax()-100;
+// 			graph1.chartAxisXDataMax      = graphDataKSet.getDataXMax();
+// 			graph1.chartAxisYDataMin      = undefined;
+// 			graph1.chartAxisYDataMax      = undefined;
+// 			for(var i = 0 ; i < graphDataKSet.length; i++){
+// 				graphDataKSet[i].width = (Math.random() * 50);
+// 				graphDataKSet[i].data.push(getRandomObj(graphDataKSet.getDataXMax()+1,(Math.random() * 500).toFixed(2)));
+// 			}
+// 			graph1.rendering();
+// 		},100);
+	},false);
+	
+	function getTempData(name, type, width, length){
+		name = name||"name";
+		type = type||"line";
+		width = width || 10;
+		length = length || 20;
+		var data = new Array();
+		for(var x = 1 ; x < length; x++){
+// 			data.push(getRandomObj(x,(Math.random() * 500).toFixed(2)));
+			data.push(getRandomObj(x,0));
+		}
+		var graphKData = new GraphDataK(name,data);
+		graphKData.setType(type);
+		graphKData.setWidth(width);
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		graphKData.setStrokeStyle(GraphKUtil.getRandomColor());
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		return graphKData;
+	} 
+
+	function getRandomObj(x,y){
+		if(x==undefined)
+			x = Math.random() * 500;
+		if(y==undefined)
+			y = Math.random() * 500;
+		
+		return {"x":x, "y":y,"label":"z"};
+	}
+	
+</script>
+</head>
+<body>
+	<canvas id="can1" width="1000" height="500"></canvas>
+</body>
+</html>

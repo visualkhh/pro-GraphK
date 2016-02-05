@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Insert title here</title>
+
+<script type="text/javascript" src="./graphk_util.js"></script>
+<script type="text/javascript" src="./graphk_object.js"></script>
+<script type="text/javascript" src="./graphk.js"></script>
+
+<script type="text/javascript">
+//------ff
+var graph1 = undefined;
+function re(){
+	graph1.rendering();
+}
+var graphDataKSet = new GraphDataKSet();
+	document.addEventListener("DOMContentLoaded", function() {
+		graph1 = new GraphK("#can1");
+		//option
+		graph1.setMargin(20,10,10,10); //t, r, b, l 
+		graph1.setPadding(20,20,40,40);
+		graph1.chartDataVisible 		= true;
+		graph1.chartAxisScaleVisible	= false;
+		graph1.chartAxisXDataMinMarginPercent=50;
+		graph1.chartAxisXDataMaxMarginPercent=50;
+		graph1.chartAxisYDataMinMarginPercent=50;
+		graph1.chartAxisYDataMaxMarginPercent=50;
+		
+		
+		graphDataKSet.push(getTempData("data0","dot"));
+		graph1.setData(graphDataKSet);
+		graph1.rendering();
+		graph1.onMouseTraking();
+		graph1.onDrag();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	  var input = document.querySelector('input[type="file"]');
+	  input.addEventListener("change", function(event) {
+	    // FileList 오브젝트
+	    var files = event.target.files;
+	    // 선택된 파일을 나타내는 File 오브젝트
+	    var file = files[0];
+	    if( ! file ) { return; }
+	    
+	    
+	    var reader = new FileReader();
+	    // Data URL 형식으로 파일 데이터 얻기
+	    reader.readAsDataURL(file);
+	    // 파일 데이터 읽기를 성공할 때의 처리
+	    reader.onload = function() {
+	      var img = document.createElement("img");
+	      img.src = reader.result;
+	      document.body.appendChild(img);
+	    };
+
+	    
+	    
+	   
+	  }, false);
+
+		
+		
+		
+		
+		
+	},false);
+	
+	function getTempData(name, type, width, length){
+		name = name||"name";
+		type = type||"line";
+		width = width || 10;
+		length = length || 5;
+		var data = new Array();
+		for(var x = 1 ; x < length; x++){
+			//data.push(getRandomObj(x,(Math.random() * 500).toFixed(2)));
+// 			data.push(getRandomObj(x,5+(0.1*x)));
+			data.push(getRandomObj(x,5));
+		}
+		var graphKData = new GraphDataK(name,data);
+		graphKData.setType(type);
+		graphKData.setWidth(width);
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		graphKData.setStrokeStyle(GraphKUtil.getRandomColor());
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		return graphKData;
+	} 
+
+	function getRandomObj(x,y){
+		if(x==undefined)
+			x = Math.random() * 500;
+		if(y==undefined)
+			y = Math.random() * 500;
+		
+		return {"x":x, "y":y};
+	}
+	
+</script>
+</head>
+<body>
+	<canvas id="can1" width="500" height="500"></canvas>
+	<p><input type="file" /></p>
+</body>
+</html>

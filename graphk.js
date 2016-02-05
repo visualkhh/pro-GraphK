@@ -26,8 +26,8 @@ GraphK.prototype.chartAxisYGuideSize 	= 5;
 GraphK.prototype.chartAxisXVisible 		= true;
 GraphK.prototype.chartAxisYVisible 		= true;
 GraphK.prototype.chartAxisScaleVisible 	= true; //아래쪽에 보이는 스케일 표식 보일거냐?
-GraphK.prototype.chartAxisXFnc 			= undefined;
-GraphK.prototype.chartAxisYFnc 			= undefined;
+GraphK.prototype.chartAxisXFnc 			= function(data){return data;}; //화면에 값뿌려줄때 어떻게 뿌려줄꺼냐
+GraphK.prototype.chartAxisYFnc 			= function(data){return data;};
 GraphK.prototype.chartDataVisible 		= true; //차트에 값표시할꺼냐
 GraphK.prototype.chartAxisXDataMin      = undefined; //셋팅되지않으면 데이터값의 min max값으로처리	
 GraphK.prototype.chartAxisXDataMax      = undefined;	
@@ -74,6 +74,15 @@ function GraphK(targetCanvas){
 		this.canvas = targetCanvas;
 	}
 	this.data = new GraphDataKSet();
+	
+//	 if (window.addEventListener) {   // all browsers except IE before version 9
+//		 this.canvas.addEventListener ("resize", this.rendering.call, false);
+//     } 
+//     else {
+//         if (window.attachEvent) {    // IE before version 9
+//        	 window.attachEvent ("onresize", this.rendering);
+//         }
+//     }
 }
 GraphK.prototype.onMouseTraking = function(){
 	var useThis = this;
@@ -101,11 +110,72 @@ GraphK.prototype.onMouseTraking = function(){
         var atDataPoint = useThis.getDrawChartData(chartDataPoint, xMin, xMax, yMin, yMax);
         useThis.context.textAlign		= "end";
         useThis.context.textBaseline 	= "bottom";
-        useThis.context.fillText(atDataPoint.y+",  "+atDataPoint.x+" ", point.x, point.y);
+//        useThis.context.fillText(atDataPoint.y+",  "+atDataPoint.x+" ", point.x, point.y);
+        useThis.context.fillText(useThis.chartAxisYFnc(atDataPoint.y)+",  "+useThis.chartAxisXFnc(atDataPoint.x)+" ", point.x, point.y);
         useThis.context.textAlign		= "left";
         useThis.context.textBaseline 	= "top";
         useThis.context.fillText("     "+point.y+",  "+point.x, point.x, point.y);
 	  }, false);
+}
+GraphK.prototype.setYLine = function(yVal){
+	var useThis = this;
+	useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
+	useThis.context.drawImage(useThis.endCanvas, 0, 0);
+	var yMin = useThis.chartAxisYDataMin;
+	var yMax = useThis.chartAxisYDataMax;
+	var xMin = useThis.chartAxisXDataMin;
+	var xMax = useThis.chartAxisXDataMax;
+	var point = new PointK(xMin, yVal);
+	//GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
+	var pxPoint = this.getDrawChartPoint(point, xMin, xMax, yMin, yMax)
+	useThis.context.fillStyle			= "#000000";
+	useThis.context.strokeStyle			= "#000000";
+	useThis.context.beginPath(); 
+	useThis.context.moveTo(0, pxPoint.y);
+	useThis.context.lineTo(useThis.endCanvas.width, pxPoint.y);
+	useThis.context.stroke(); 
+}
+GraphK.prototype.setXLine = function(xVal){
+	var useThis = this;
+	useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
+	useThis.context.drawImage(useThis.endCanvas, 0, 0);
+	var yMin = useThis.chartAxisYDataMin;
+	var yMax = useThis.chartAxisYDataMax;
+	var xMin = useThis.chartAxisXDataMin;
+	var xMax = useThis.chartAxisXDataMax;
+	var point = new PointK(xVal, yMin);
+	//GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
+	var pxPoint = this.getDrawChartPoint(point, xMin, xMax, yMin, yMax)
+    useThis.context.fillStyle			= "#000000";
+    useThis.context.strokeStyle			= "#000000";
+    useThis.context.beginPath(); 
+    useThis.context.moveTo(pxPoint.x, 0);
+    useThis.context.lineTo(pxPoint.x, useThis.endCanvas.height);
+	useThis.context.stroke(); 
+}
+GraphK.prototype.setXLines = function(xValArr){
+	var useThis = this;
+	useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
+	useThis.context.drawImage(useThis.endCanvas, 0, 0);
+	var yMin = useThis.chartAxisYDataMin;
+	var yMax = useThis.chartAxisYDataMax;
+	var xMin = useThis.chartAxisXDataMin;
+	var xMax = useThis.chartAxisXDataMax;
+	
+	for (var i = 0; i < xValArr.length; i++) {
+		var xVal = xValArr[i]
+		var point = new PointK(xVal, yMin);
+		//GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
+		var pxPoint = this.getDrawChartPoint(point, xMin, xMax, yMin, yMax)
+		useThis.context.fillStyle			= "#000000";
+		useThis.context.strokeStyle			= "#000000";
+		useThis.context.beginPath(); 
+		useThis.context.moveTo(pxPoint.x, 0);
+		useThis.context.lineTo(pxPoint.x, useThis.endCanvas.height);
+		useThis.context.stroke(); 
+	}
+	
+	
 }
 GraphK.prototype.onDrag = function(){
 	var useThis = this;
@@ -145,8 +215,10 @@ GraphK.prototype.onDrag = function(){
 				useThis.context.fillStyle			= "#000000";
 				var atStartData 	= useThis.getDrawChartData(dragChartDataStartPoint, xMin, xMax, yMin, yMax);
 				var atEndData 		= useThis.getDrawChartData(dragChartDataEndPoint, xMin, xMax, yMin, yMax);
-				useThis.context.fillText(atStartData.y+",  "+atStartData.x, dragStartPoint.x, dragStartPoint.y);
-				useThis.context.fillText("    "+atEndData.y+",  "+atEndData.x, dragEndPoint.x, dragEndPoint.y);
+//				useThis.context.fillText(atStartData.y+",  "+atStartData.x, dragStartPoint.x, dragStartPoint.y);
+//				useThis.context.fillText("    "+atEndData.y+",  "+atEndData.x, dragEndPoint.x, dragEndPoint.y);
+				useThis.context.fillText(useThis.chartAxisYFnc(atStartData.y)+",  "+useThis.chartAxisXFnc(atStartData.x), dragStartPoint.x, dragStartPoint.y);
+				useThis.context.fillText("    "+useThis.chartAxisYFnc(atEndData.y)+",  "+useThis.chartAxisXFnc(atEndData.x), dragEndPoint.x, dragEndPoint.y);
 			}
 		}else if(event.type=="mouseup"){
 			useThis.context.clearRect(0,0,useThis.endCanvas.width, useThis.endCanvas.height);
@@ -189,6 +261,11 @@ GraphK.prototype.onDrag = function(){
 
 GraphK.prototype.rendering = function(){
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
+	this.canvas.height = this.canvas.clientHeight;
+	this.canvas.width = this.canvas.clientWidth;
+	this.endCanvas.height = this.endCanvas.clientHeight;
+	this.endCanvas.width = this.endCanvas.clientWidth;
+	
 	this.context = this.canvas.getContext("2d");
 	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	this.context.clearRect(0, 0, this.context.width, this.context.height);
@@ -245,6 +322,8 @@ GraphK.prototype.rendering = function(){
     
 	
 	this.endCanvas = GraphKUtil.copyCanvas(this.canvas);
+//	this.endCanvas.width = this.canvas.width;
+//	this.endCanvas.height = this.canvas.height;
 	
 };
 
@@ -269,12 +348,16 @@ GraphK.prototype.drawChartData = function(graphDataKSet){
 			this.drawChartLineData(atGraphKData);
 		}else if(atGraphKData.type=="linefill"){
 			this.drawChartLineFillData(atGraphKData);
+		}else if(atGraphKData.type=="linegroup"){
+			this.drawChartLineGroupData(atGraphKData);
 		}else if(atGraphKData.type=="dot"){
 			this.drawChartDotData(atGraphKData);
 		}else if(atGraphKData.type=="arc"){
 			this.drawChartArcData(atGraphKData);
 		}else if(atGraphKData.type=="stick"){
 			this.drawChartStickData(atGraphKData);
+		}else if(Object.prototype.toString.call(atGraphKData.type)=='[object Function]'){
+			this.drawChartCustomData(atGraphKData);
 		}else{
 		}
 	}
@@ -316,14 +399,14 @@ GraphK.prototype.drawChartLineFillData = function(graphKData){//GraphDataK
 		var atPoint = pointArray[i];
 		if(i==0){ //처음
 			//this.context.moveTo(atPoint.x, atPoint.y);
-			this.context.moveTo(0, this.canvas.height);
+			this.context.moveTo(atPoint.x, this.canvas.height);
 			this.context.lineTo(atPoint.x, atPoint.y);
 		}else{
 			this.context.lineTo(atPoint.x, atPoint.y);
 		}
 		
 		if((i+1)==pointArray.length){
-			this.context.lineTo(this.canvas.width, this.canvas.height);
+			this.context.lineTo(atPoint.x, this.canvas.height);
 			
 		}
 	      
@@ -333,6 +416,36 @@ GraphK.prototype.drawChartLineFillData = function(graphKData){//GraphDataK
 	//this.context.fillStyle = '#8ED6FF';
 	this.context.fill();
 	this.context.closePath();
+	this.context.stroke(); 
+}
+GraphK.prototype.drawChartLineGroupData = function(graphKData){//GraphDataK
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.beginPath(); 
+	var width = graphKData.width;
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		var atPoint = pointArray[i];
+		if(i%width==0){
+			this.context.moveTo(atPoint.x, atPoint.y);
+		}
+		if(i==0){ //처음
+			this.context.moveTo(atPoint.x, atPoint.y);
+		}else{
+			this.context.lineTo(atPoint.x, atPoint.y);
+		}
+		
+		var widthH  = 10/2;
+		var startX 	= atPoint.x - widthH;
+		var startY 	= atPoint.y - widthH;
+		this.context.fillRect(startX, startY, widthH, widthH );
+	      
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+	}
+	//this.context.fillStyle = '#8ED6FF';
+	//this.context.fill();
+//	this.context.closePath();
 	this.context.stroke(); 
 }
 GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
@@ -346,6 +459,7 @@ GraphK.prototype.drawChartDotData = function(graphKData){//GraphDataK
 	for ( var i = 0; i < pointArray.length; i++) {
 		this.context.beginPath(); 
 		var atPoint = pointArray[i];
+		//console.log('atPoint : x:'+atPoint.x+"   y:"+atPoint.y);
 		var widthH  = (graphKData.width/2);
 		
 		var startX 	= atPoint.x - widthH;
@@ -397,21 +511,50 @@ GraphK.prototype.drawChartStickData = function(graphKData){ //GraphDataK
 	this.context.stroke(); 
 }
 
+////PointK, GraphDataKSet
+//차트데이터 데이터값을주면  상대좌표를 픽셀을 돌려준다.  복합.
 GraphK.prototype.getDrawChartPoints = function(graphKData){
 	
 	var dataArray = graphKData.data;  //[Object,....]
 	var pointArray = new Array();
 	for ( var i = 0; i < dataArray.length; i++) {
 		var atData 	= dataArray[i];	//Object   ex: {x:1,y:1}
-		var point 	= this.getDrawChartPoint(new PointK(atData[graphKData.xVarName], atData[graphKData.yVarName]),
+		//console.log('atData : x:'+atData.x+"   y:"+atData.y);
+		var point 	= this.getDrawChartPoint(
+				new PointK(atData[graphKData.xVarName], atData[graphKData.yVarName]),
 				this.chartAxisXDataMin, this.chartAxisXDataMax,
 				this.chartAxisYDataMin, this.chartAxisYDataMax
 				);
 		point.value=atData[graphKData.yVarName]+", "+atData[graphKData.xVarName];
+		point.yvalue = atData[graphKData.yVarName];
+		point.xvalue = atData[graphKData.xVarName];
 		pointArray.push(point);
 	}
 	return pointArray;
 }
+
+
+GraphK.prototype.drawChartCustomData = function(graphKData){//GraphDataK
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.textAlign 		= "center";
+	this.context.textBaseline 	= "middle";
+	
+	
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		var atPoint = pointArray[i];
+		graphKData.type(this.context, atPoint,graphKData);
+	}
+	
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; 
+	this.context.stroke(); 
+}
+
+
+
+
 
 //PointK, GraphDataKSet
 //차트데이터 데이터값을주면  상대좌표를 픽셀을 돌려준다.
@@ -424,6 +567,20 @@ GraphK.prototype.getDrawChartPoint = function(point, xMin, xMax, yMin, yMax){
 	var yMaxMargin = GraphKUtil.getValueByTotInPercent(yData_BetweenLength, this.chartAxisYDataMaxMarginPercent);
 	var xMinMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMinMarginPercent);
 	var xMaxMargin = GraphKUtil.getValueByTotInPercent(xData_BetweenLength, this.chartAxisXDataMaxMarginPercent);
+	
+	if(yMinMargin==0){//2016027 크기가 하나로 다동일할떄 차이값이 0이 나와서 화면에 제대로 안그려진다 이떄 조치.
+		yMinMargin = this.chartAxisYDataMinMarginPercent;
+	}
+	if(yMaxMargin==0){
+		yMaxMargin = this.chartAxisYDataMaxMarginPercent;
+	}
+	if(xMinMargin==0){
+		xMinMargin = this.chartAxisXDataMinMarginPercent;
+	}
+	if(xMaxMargin==0){
+		xMaxMargin = this.chartAxisXDataMaxMarginPercent;
+	}	
+	
 	//datamargin
 	yMin = yMin - yMinMargin;
 	yMax = yMax + yMaxMargin;
@@ -539,7 +696,8 @@ GraphK.prototype.drawChartAxisGuide = function(){
 	var yGP		= this.chartDataRect.height / this.chartAxisYCount;
 	//>> X
 	this.context.textAlign		= "left";
-	this.context.textBaseline	= "end";
+//	this.context.textBaseline	= "end";
+	this.context.textBaseline	= "top";
 	
 	this.context.strokeStyle = this.chartStrokeStyle;
 	for ( var i = 0; this.chartAxisXVisible && i <= this.chartAxisXCount; i++) {
@@ -555,9 +713,8 @@ GraphK.prototype.drawChartAxisGuide = function(){
 		this.context.stroke(); 
 	}
 	//>> Y
-//	this.context.textAlign		= "end";
-	this.context.textAlign		= "right";
-	this.context.textBaseline	= "end";
+	this.context.textAlign		= "left";
+	this.context.textBaseline	= "bottom";
 	for ( var i = 0; this.chartAxisYVisible && i <= this.chartAxisYCount; i++) {
 		this.context.beginPath();
 		var setX = this.chartRect.getStartX();

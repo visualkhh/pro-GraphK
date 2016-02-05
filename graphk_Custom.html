@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Insert title here</title>
+
+<script type="text/javascript" src="./graphk_util.js"></script>
+<script type="text/javascript" src="./graphk_object.js"></script>
+<script type="text/javascript" src="./graphk.js"></script>
+
+<script type="text/javascript">
+//------ff
+var graph1 = undefined;
+function re(){
+	graph1.rendering();
+}
+var graphDataKSet = new GraphDataKSet();
+	document.addEventListener("DOMContentLoaded", function() {
+		graph1 = new GraphK("#can1");
+		//option
+		graph1.setMargin(20,10,10,10); //t, r, b, l 
+		graph1.setPadding(20,20,40,40);
+		graph1.chartDataVisible 		= true;
+		graph1.chartAxisScaleVisible	= false;
+		graphDataKSet.push(getTempData("data0","dot"));
+// 		graphDataKSet.push(getTempData("data0","line"));
+		graphDataKSet.push(getTempData("data0",function(context, atPoint, graphKData){
+			
+			
+// 			context.beginPath(); 
+// 			var widthH  = (graphKData.width/2);
+			
+// 			var startX 	= atPoint.x - widthH;
+// 			var startY 	= atPoint.y - widthH;
+// 			context.fillRect(startX, startY, graphKData.width,  graphKData.width );
+// 			context.fillStyle 		= "#000000"; 
+// 			context.fillStyle 		= graphKData.strokeStyle; 
+// 			context.stroke(); 
+			
+			var image = new Image();
+			image.onload = function(e){
+				context.drawImage(image, atPoint.x, atPoint.y,10,10);
+			};
+			
+			image.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAABEklEQVR42mN4s27D/4HADIPC4iWSW3FiUgwlxpzBZ3FJzFmsGJ+FuPQQtBjZclpYjDdxDZjFhCwn1WJcaYRki3FZTopvCVpMiq+JTVQECxBqWkxSyTVgFuOznBiL8Vn6aPVi8ixGt5wU395YPun/0QXl9LP4+ZqV/88vbv1/bknL//srZxOunYgJbkKWPl29FGzZ8zUriK8WCfkamxwxFQsDsbUNLotJTc0kW4wruMmxlGKLyfUtSU0fYiwnpdFA0GKLjHAwJsVimB5s2L8q4X9yVwZ9LLbOigBbCMJ2uZFgMaItJmQ5Pt+CLEYXo4vF2DBJFiNbjgvjsmhx1msUTFWL/Q+JYMVD22KUrIHDokFtMQC3p/yKPfzasgAAAABJRU5ErkJggg==";
+// 			console.log(point.x+",     "+point.y+",      "+point.value);
+		}));
+		graph1.setData(graphDataKSet);
+		graph1.rendering();
+		graph1.onMouseTraking();
+		graph1.onDrag();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	  var input = document.querySelector('input[type="file"]');
+	  input.addEventListener("change", function(event) {
+	    // FileList 오브젝트
+	    var files = event.target.files;
+	    // 선택된 파일을 나타내는 File 오브젝트
+	    var file = files[0];
+	    if( ! file ) { return; }
+	    
+	    
+	    var reader = new FileReader();
+	    // Data URL 형식으로 파일 데이터 얻기
+	    reader.readAsDataURL(file);
+	    // 파일 데이터 읽기를 성공할 때의 처리
+	    reader.onload = function() {
+	      var img = document.createElement("img");
+	      img.src = reader.result;
+	      document.body.appendChild(img);
+	    };
+
+	    
+	    
+	   
+	  }, false);
+
+		
+		
+		
+		
+		
+	},false);
+	
+	function getTempData(name, type, width, length){
+		name = name||"name";
+		type = type||"line";
+		width = width || 10;
+		length = length || 20;
+		var data = new Array();
+		for(var x = 1 ; x < length; x++){
+			data.push(getRandomObj(x,(Math.random() * 500).toFixed(2)));
+		}
+		var graphKData = new GraphDataK(name,data);
+		graphKData.setType(type);
+		graphKData.setWidth(width);
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		graphKData.setStrokeStyle(GraphKUtil.getRandomColor());
+		graphKData.setFillStyle(GraphKUtil.getRandomColor());
+		return graphKData;
+	} 
+
+	function getRandomObj(x,y){
+		if(x==undefined)
+			x = Math.random() * 500;
+		if(y==undefined)
+			y = Math.random() * 500;
+		
+		return {"x":x, "y":y};
+	}
+	
+</script>
+</head>
+<body>
+	<canvas id="can1" width="500" height="500"></canvas>
+	<p><input type="file" /></p>
+</body>
+</html>
