@@ -358,6 +358,8 @@ GraphK.prototype.drawChartData = function(graphDataKSet){
 			this.drawChartStickData(atGraphKData);
 		}else if(Object.prototype.toString.call(atGraphKData.type)=='[object Function]'){
 			this.drawChartCustomData(atGraphKData);
+		}if(atGraphKData.type=="bezoer"){
+			this.drawChartBezoerLineData(atGraphKData);
 		}else{
 		}
 	}
@@ -377,6 +379,30 @@ GraphK.prototype.drawChartLineData = function(graphKData){//GraphDataK
 			this.context.moveTo(atPoint.x, atPoint.y);
 		}else{
 			this.context.lineTo(atPoint.x, atPoint.y);
+		}
+		
+		
+		if(this.chartDataVisible)
+			this.context.fillText(atPoint.value, atPoint.x, atPoint.y);
+	}
+	//this.context.fillStyle = '#8ED6FF';
+	//this.context.fill();
+//	this.context.closePath();
+	this.context.stroke(); 
+}
+GraphK.prototype.drawChartBezoerLineData = function(graphKData){//GraphDataK
+	
+	this.context.strokeStyle 	= graphKData.strokeStyle;
+	this.context.fillStyle 		= graphKData.strokeStyle; //스타일있으면 그걸로셋팅.
+	this.context.beginPath(); 
+	
+	var pointArray = this.getDrawChartPoints(graphKData);
+	for ( var i = 0; i < pointArray.length; i++) {
+		var atPoint = pointArray[i];
+		if(i==0){ //처음
+			this.context.moveTo(atPoint.x, atPoint.y);
+		}else{
+			this.context.bezierCurveTo(atPoint.x,atPoint.y, atPoint.x+55,atPoint.y+55,atPoint.x,atPoint.y);
 		}
 		
 	      
